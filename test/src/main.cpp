@@ -41,7 +41,7 @@ main (int argc, char *argv[])
   using namespace x86_64;
   relocation_symbol_store rstore;
   assembler asem;
-  asem.emit_call(rel_t (rstore.get ("exit")));
+  asem.emit_call (rel_t (rstore.get ("exit")));
 
   generic_module mod (module_type::relocatable, target_architecture::x86_64);
 

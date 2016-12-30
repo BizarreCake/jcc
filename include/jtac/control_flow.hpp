@@ -1,0 +1,74 @@
+/*
+ * jcc - A compiler framework.
+ * Copyright (C) 2016 Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef _JCC__JTAC__CONTROL_FLOW__H_
+#define _JCC__JTAC__CONTROL_FLOW__H_
+
+#include "jtac/jtac.hpp"
+#include <vector>
+#include <memory>
+
+
+namespace jcc {
+
+  /*!
+     \class basic_block
+     \brief A straight-line piece of code without any jumps.
+   */
+  class basic_block
+  {
+    std::vector<jtac_instruction> insts;
+
+    std::vector<std::shared_ptr<basic_block>> prev;
+    std::vector<std::shared_ptr<basic_block>> next;
+
+   public:
+    inline const auto& get_instructions () const { return this->insts; }
+
+    inline const auto& get_prev () const { return this->prev; }
+    inline const auto& get_next () const { return this->next; }
+
+   public:
+    //! \brief Inserts the specified instruction to the end of the block.
+    void push_instruction (const jtac_instruction& inst);
+
+    //! \brief Inserts a basic block to this block's list of predecessor blocks.
+    void add_prev (std::shared_ptr<basic_block> blk);
+
+    //! \brief Inserts a basic block to this block's list of successor blocks.
+    void add_next (std::shared_ptr<basic_block> blk);
+  };
+
+
+
+  /*!
+     \class control_flow_analyzer
+     \brief Performs control flow analysis.
+   */
+  class control_flow_analyzer
+  {
+   public:
+    /*!
+       \brief Builds a control flow graph.
+     */
+    std::shared_ptr<basic_block> build_graph (
+        const std::vector<jtac_instruction>& insts);
+  };
+}
+
+#endif //_JCC__JTAC__CONTROL_FLOW__H_

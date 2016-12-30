@@ -11,7 +11,7 @@ file(GLOB_RECURSE JCC_SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build/)
 include_directories(include/)
-add_library(jcc SHARED ${JCC_SOURCES} ${JCC_HEADERS} include/linker/translators/elf64/object_file.hpp src/linker/translators/elf64/object_file.cpp include/linker/translators/elf64/section.hpp src/linker/translators/elf64/section.cpp include/common/binary.hpp include/linker/translators/elf64/segment.hpp src/linker/translators/elf64/segment.cpp src/assembler/relocation.cpp src/linker/translators/elf64/elf64.cpp include/linker/linker.hpp src/linker/linker.cpp)
+add_library(jcc SHARED ${JCC_SOURCES} ${JCC_HEADERS} include/linker/translators/elf64/object_file.hpp src/linker/translators/elf64/object_file.cpp include/linker/translators/elf64/section.hpp src/linker/translators/elf64/section.cpp include/common/binary.hpp include/linker/translators/elf64/segment.hpp src/linker/translators/elf64/segment.cpp src/assembler/relocation.cpp src/linker/translators/elf64/elf64.cpp include/linker/linker.hpp src/linker/linker.cpp include/jtac/jtac.hpp include/jtac/assembler.hpp src/jtac/assembler.cpp include/jtac/control_flow.hpp src/jtac/control_flow.cpp)
 
 add_subdirectory(test)
 
