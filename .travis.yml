@@ -4,3 +4,6 @@ os:
 compiler:
   - gcc
   - clang
+before_script:
+  - cmake
+script: make
