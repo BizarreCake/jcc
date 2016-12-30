@@ -20,11 +20,6 @@ add_subdirectory(test)
 #
 #-------------------------------------------------------------------------------
 
-# Boost
-find_package(Boost COMPONENTS system program_options filesystem REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(jcc ${Boost_LIBRARIES})
-
 #-------------------------------------------------------------------------------
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O0 -g -Wall")
