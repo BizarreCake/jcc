@@ -28,7 +28,6 @@ addons:
       - kalakris-cmake
     packages:
       - cmake
-      - lcov
 
 before_install:
   - sudo apt-get update -qq
@@ -36,7 +35,6 @@ before_install:
 script:
   - cmake -DENABLE_COVERAGE=On -DCMAKE_CXX_COMPILER=$COMPILER . && make && make test
   - make gcov
-  - make lcov
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X gcov
