@@ -3,11 +3,9 @@
 # 
 
 cmake_minimum_required(VERSION 2.8)
-project(jcc_test)
 
-message(${PROJECT_SOURCE_DIR})
-file(GLOB_RECURSE TEST_HEADERS ${PROJECT_SOURCE_DIR}/include/*.hpp)
-file(GLOB_RECURSE TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE TEST_HEADERS ${PROJECT_SOURCE_DIR}/test/include/*.hpp)
+file(GLOB_RECURSE TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/src/*.cpp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++14 -O0 -g")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/CMake-codecov/cmake" ${CMAKE_MODULE_PATH})
