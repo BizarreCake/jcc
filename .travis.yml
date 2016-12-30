@@ -12,8 +12,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
-            - gcov-4.9
-      env: COMPILER=g++-4.9
+      env: COMPILER=g++-4.9 GCOV=gcov-4.9
     - compiler: gcc
       addons:
         apt:
@@ -21,15 +20,16 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-5
-            - gcov-5
-      env: COMPILER=g++-5
+      env: COMPILER=g++-5 GCOV=gcov-5
 
 addons:
   apt:
     sources:
       - kalakris-cmake
+      - ubuntu-toolchain-r-test
     packages:
       - cmake
+      - gcov
 
 before_install:
   - sudo apt-get update -qq
