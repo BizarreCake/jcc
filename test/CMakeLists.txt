@@ -30,6 +30,4 @@ target_link_libraries(jcc_test ${CMAKE_SOURCE_DIR}/build/libjcc.so)
 
 #-------------------------------------------------------------------------------
 
-
-
 add_test(main ${CMAKE_SOURCE_DIR}/build/jcc_test)
