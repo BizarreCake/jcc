@@ -13,14 +13,6 @@ matrix:
           packages:
             - g++-4.9
       env: COMPILER=g++-4.9 GCOV=gcov-4.9
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env: COMPILER=g++-5 GCOV=gcov-5
 
 addons:
   apt:
@@ -33,6 +25,9 @@ addons:
 
 before_install:
   - sudo apt-get update -qq
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 90
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 90
+  - sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-4.9 90
 
 script:
   - cmake -DENABLE_COVERAGE=On -DCMAKE_CXX_COMPILER=$COMPILER . && make && make test
