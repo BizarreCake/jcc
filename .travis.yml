@@ -12,6 +12,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.9
+            - gcov-4.9
       env: COMPILER=g++-4.9
     - compiler: gcc
       addons:
@@ -20,6 +21,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-5
+            - gcov-5
       env: COMPILER=g++-5
 
 addons:
