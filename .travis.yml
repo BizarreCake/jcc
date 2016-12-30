@@ -5,5 +5,5 @@ compiler:
   - gcc
   - clang
 before_script:
-  - cmake
+  - cmake .
 script: make
