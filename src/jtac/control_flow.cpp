@@ -24,6 +24,13 @@
 
 namespace jcc {
 
+  basic_block::basic_block (basic_block_id id)
+  {
+    this->id = id;
+  }
+
+
+
   //! \brief Inserts the specified instruction to the end of the block.
   void
   basic_block::push_instruction (const jtac_instruction& inst)
@@ -48,6 +55,13 @@ namespace jcc {
 
 
 //------------------------------------------------------------------------------
+
+  control_flow_analyzer::control_flow_analyzer ()
+  {
+    this->next_blk_id = 1;
+  }
+
+
 
   static bool
   _is_branch_instruction (const jtac_instruction& inst)
@@ -96,7 +110,7 @@ namespace jcc {
     for (size_t i = 0; i < insts.size (); ++i)
       {
         size_t start = i;
-        auto blk = std::make_shared<basic_block> ();
+        auto blk = std::make_shared<basic_block> (this->next_blk_id ++);
 
         blk->push_instruction (insts[i++]);
         for (; i < insts.size () && !leaders[i]; ++i)

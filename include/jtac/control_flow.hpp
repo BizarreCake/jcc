@@ -26,22 +26,30 @@
 
 namespace jcc {
 
+  //! \brief Used to identify basic blocks.
+  using basic_block_id = int;
+
   /*!
      \class basic_block
      \brief A straight-line piece of code without any jumps.
    */
   class basic_block
   {
+    basic_block_id id;
     std::vector<jtac_instruction> insts;
 
     std::vector<std::shared_ptr<basic_block>> prev;
     std::vector<std::shared_ptr<basic_block>> next;
 
    public:
+    inline basic_block_id get_id () const { return this->id; }
     inline const auto& get_instructions () const { return this->insts; }
 
     inline const auto& get_prev () const { return this->prev; }
     inline const auto& get_next () const { return this->next; }
+
+   public:
+    basic_block (basic_block_id id);
 
    public:
     //! \brief Inserts the specified instruction to the end of the block.
@@ -62,6 +70,11 @@ namespace jcc {
    */
   class control_flow_analyzer
   {
+    basic_block_id next_blk_id;
+
+   public:
+    control_flow_analyzer ();
+
    public:
     /*!
        \brief Builds a control flow graph.
