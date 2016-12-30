@@ -44,3 +44,5 @@ before_install:
   - sudo apt-get update -qq
 script:
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER . && make
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
