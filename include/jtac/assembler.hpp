@@ -26,15 +26,14 @@
 
 
 namespace jcc {
+namespace jtac {
 
   /*!
-     \class jtac_assembler
+     \class assembler
      \brief JTAC assembler.
    */
-  class jtac_assembler
-  {
-    struct label_use
-    {
+  class assembler {
+    struct label_use {
       jtac_label_id lbl;
       size_t pos;
     };
@@ -48,13 +47,20 @@ namespace jcc {
     std::vector<label_use> lbl_uses;
 
    public:
-    inline const auto& get_instructions () const { return this->insts; }
+    inline const auto &get_instructions () const
+    { return this->insts; }
 
-    inline size_t get_pos () const { return this->pos; }
-    inline void set_pos (size_t pos) { this->pos = pos; }
+    inline size_t get_pos () const
+    { return this->pos; }
+    inline void set_pos (size_t pos)
+    { this->pos = pos; }
 
    public:
-    jtac_assembler ();
+    assembler ();
+
+   public:
+    //! \brief Resets the state of the assembler.
+    void clear ();
 
    public:
     //! \brief Creates and returns a new unique label ID.
@@ -112,19 +118,21 @@ namespace jcc {
 
    private:
     //! \brief Overwrites or inserts a new instruction and returns it.
-    jtac_instruction& put_instruction ();
+    jtac_instruction &put_instruction ();
 
     //! \brief Emits a standard instruction in the form of: r = a <op> b
-    void emit_basic3 (jtac_opcode op, const jtac_operand& r,
-                      const jtac_operand& a, const jtac_operand& b);
+    void emit_basic3 (jtac_opcode op, const jtac_operand &r,
+                      const jtac_operand &a, const jtac_operand &b);
 
     //! \brief Emits a binary instruction in the form of: a <op> b
-    void emit_basic2 (jtac_opcode op, const jtac_operand& a,
-                      const jtac_operand& b);
+    void emit_basic2 (jtac_opcode op, const jtac_operand &a,
+                      const jtac_operand &b);
 
     //! \brief Emits an instruction that takes a single operand.
-    void emit_basic1 (jtac_opcode op, const jtac_operand& opr);
+    void emit_basic1 (jtac_opcode op, const jtac_operand &opr);
   };
+
+}
 }
 
 #endif //_JCC__JTAC__ASSEMBLER__H_

@@ -24,6 +24,7 @@
 
 
 namespace jcc {
+namespace jtac {
 
   /*!
      \enum jtac_opcode
@@ -48,6 +49,9 @@ namespace jcc {
     JTAC_OP_JG,               // jg lbl
     JTAC_OP_JGE,              // jge lbl
     JTAC_OP_RET,              // ret t1
+
+    // special instructions:
+    JTAC_SOP_ASSIGN_PHI,      // t1 = phi(t2, t3, ...)
   };
 
 
@@ -250,6 +254,7 @@ namespace jcc {
       jtac_tagged_operand *oprs;
     } extra;
   };
+}
 }
 
 #endif //_JCC__JTAC__JTAC__H_

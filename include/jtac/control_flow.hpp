@@ -25,6 +25,7 @@
 
 
 namespace jcc {
+namespace jtac {
 
   //! \brief Used to identify basic blocks.
   using basic_block_id = int;
@@ -65,6 +66,38 @@ namespace jcc {
 
 
   /*!
+     \enum control_flow_graph_type
+     \brief Describes the type of a CFG's contents.
+   */
+  enum class control_flow_graph_type
+  {
+    normal,
+    ssa,      //! \brief The CFG is in SSA form.
+  };
+
+  /*!
+     \class control_flow_graph
+     \brief A control flow graph!
+   */
+  class control_flow_graph
+  {
+    control_flow_graph_type type;
+    std::shared_ptr<basic_block> root;
+
+   public:
+    inline control_flow_graph_type get_type () const { return this->type; }
+
+    inline auto& get_root () { return this->root; }
+    inline const auto& get_root () const { return this->root; }
+
+   public:
+    control_flow_graph (control_flow_graph_type type,
+                        std::shared_ptr<basic_block> root);
+  };
+
+
+
+  /*!
      \class control_flow_analyzer
      \brief Performs control flow analysis.
    */
@@ -79,9 +112,14 @@ namespace jcc {
     /*!
        \brief Builds a control flow graph.
      */
-    std::shared_ptr<basic_block> build_graph (
+    control_flow_graph build_graph (
         const std::vector<jtac_instruction>& insts);
+
+   public:
+    //! \brief Static method for convenience.
+    static control_flow_graph make_cfg (const std::vector<jtac_instruction>& insts);
   };
+}
 }
 
 #endif //_JCC__JTAC__CONTROL_FLOW__H_

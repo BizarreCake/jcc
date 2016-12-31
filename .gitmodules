@@ -1,3 +1,6 @@
 [submodule "externals/CMake-codecov"]
 	path = externals/CMake-codecov
 	url = git://github.com/RWTH-ELP/CMake-codecov.git
+[submodule "externals/Catch"]
+	path = externals/Catch
+	url = https://github.com/philsquared/Catch

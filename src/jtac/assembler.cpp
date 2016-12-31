@@ -20,8 +20,9 @@
 
 
 namespace jcc {
+namespace jtac {
 
-  jtac_assembler::jtac_assembler ()
+  assembler::assembler ()
   {
     this->pos = 0;
     this->next_lbl_id = 1;
@@ -29,23 +30,36 @@ namespace jcc {
 
 
 
+  //! \brief Resets the state of the assembler.
+  void
+  assembler::clear ()
+  {
+    this->pos = 0;
+    this->next_lbl_id = 1;
+    this->insts.clear ();
+    this->lbl_fixes.clear ();
+    this->lbl_uses.clear ();
+  }
+
+
+
   //! \brief Creates and returns a new unique label ID.
   jtac_label_id
-  jtac_assembler::make_label ()
+  assembler::make_label ()
   {
     return this->next_lbl_id ++;
   }
 
   //! \brief Sets the position of the specified label ID to the current position.
   void
-  jtac_assembler::mark_label (jtac_label_id id)
+  assembler::mark_label (jtac_label_id id)
   {
     this->lbl_fixes[id] = this->pos;
   }
 
   //! \brief Calls make_label() and mark_label() in succession.
   jtac_label_id
-  jtac_assembler::make_and_mark_label ()
+  assembler::make_and_mark_label ()
   {
     auto lbl = this->make_label ();
     this->mark_label (lbl);
@@ -56,7 +70,7 @@ namespace jcc {
 
   //! \brief Overwrites or inserts a new instruction and returns it.
   jtac_instruction&
-  jtac_assembler::put_instruction ()
+  assembler::put_instruction ()
   {
     if (this->pos < this->insts.size ())
       return this->insts[this->pos];
@@ -91,7 +105,7 @@ namespace jcc {
 
   //! \brief Emits a standard instruction in the form of: r = a <op> b
   void
-  jtac_assembler::emit_basic3 (jtac_opcode op, const jtac_operand& r,
+  assembler::emit_basic3 (jtac_opcode op, const jtac_operand& r,
                               const jtac_operand& a, const jtac_operand& b)
   {
     auto& inst = this->put_instruction ();
@@ -103,7 +117,7 @@ namespace jcc {
 
   //! \brief Emits a binary instruction in the form of: a <op> b
   void
-  jtac_assembler::emit_basic2 (jtac_opcode op, const jtac_operand& a,
+  assembler::emit_basic2 (jtac_opcode op, const jtac_operand& a,
                                const jtac_operand& b)
   {
     auto& inst = this->put_instruction ();
@@ -114,7 +128,7 @@ namespace jcc {
 
   //! \brief Emits an instruction that takes a single operand.
   void
-  jtac_assembler::emit_basic1 (jtac_opcode op, const jtac_operand& opr)
+  assembler::emit_basic1 (jtac_opcode op, const jtac_operand& opr)
   {
     if (opr.get_type () == JTAC_OPR_LABEL)
       {
@@ -126,4 +140,6 @@ namespace jcc {
     inst.op = op;
     _set_operand (inst, 0, opr);
   }
+
+}
 }

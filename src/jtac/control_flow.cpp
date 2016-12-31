@@ -23,6 +23,7 @@
 
 
 namespace jcc {
+namespace jtac {
 
   basic_block::basic_block (basic_block_id id)
   {
@@ -50,6 +51,17 @@ namespace jcc {
   basic_block::add_next (std::shared_ptr<basic_block> blk)
   {
     this->next.push_back (blk);
+  }
+
+
+
+//------------------------------------------------------------------------------
+
+  control_flow_graph::control_flow_graph (control_flow_graph_type type,
+                                          std::shared_ptr<basic_block> root)
+      : root (root)
+  {
+    this->type = type;
   }
 
 
@@ -85,7 +97,7 @@ namespace jcc {
   /*!
      \brief Builds a control flow graph.
    */
-  std::shared_ptr<basic_block>
+  control_flow_graph
   control_flow_analyzer::build_graph (const std::vector<jtac_instruction>& insts)
   {
     // pick leaders
@@ -143,6 +155,17 @@ namespace jcc {
         blk->add_next (next_blk);
       }
 
-    return blocks[0];
+    return control_flow_graph (control_flow_graph_type::normal, blocks[0]);
   }
+
+
+
+  //! \brief Static method for convenience.
+  control_flow_graph
+  control_flow_analyzer::make_cfg (const std::vector<jtac_instruction>& insts)
+  {
+    control_flow_analyzer an;
+    return an.build_graph (insts);
+  }
+}
 }

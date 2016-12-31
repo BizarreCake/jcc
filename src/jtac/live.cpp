@@ -20,6 +20,7 @@
 
 
 namespace jcc {
+namespace jtac {
 
   /*!
      \brief Performs live-variable on the specified control flow graph.
@@ -30,4 +31,5 @@ namespace jcc {
   {
 
   }
+}
 }

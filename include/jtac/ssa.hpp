@@ -16,48 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _JCC__JTAC__LIVE__H_
-#define _JCC__JTAC__LIVE__H_
+#ifndef _JCC__JTAC__SSA__H_
+#define _JCC__JTAC__SSA__H_
 
 #include "jtac/control_flow.hpp"
-#include <unordered_map>
 
 
 namespace jcc {
 namespace jtac {
 
   /*!
-     \class live_variable_analysis
-     \brief Stores the result of a live-variable analysis.
+     \class ssa_builder
+     \brief Transforms control flow graphs into SSA form.
    */
-  class live_variable_analysis
+  class ssa_builder
   {
-
-  };
-
-
-  /*!
-     \class live_variable_analyzer
-     \brief JTAC Analyzer that performs live-variable analysis.
-   */
-  class live_variable_analyzer
-  {
-    class basic_block_info
-    {
-
-    };
-
-   private:
-    std::unordered_map<basic_block_id, basic_block_info> infos;
-
    public:
     /*!
-       \brief Performs live-variable on the specified control flow graph.
-       \param root Root basic block of the control flow graph.
+       \brief Builds a new CFG in maximal SSA form.
+       \param cfg The control flow graph to transform.
+       \return A copy of the CFG in maximal SSA form.
      */
-    live_variable_analysis analyze (const basic_block& root);
+    control_flow_graph build_maximal (const control_flow_graph& cfg);
   };
 }
 }
 
-#endif //_JCC__JTAC__LIVE__H_
+#endif //_JCC__JTAC__SSA__H_

@@ -16,7 +16,7 @@ include_directories(include/)
 # enable code coverage
 find_package(codecov)
 
-add_executable(jcc_test ${TEST_SOURCES} ${TEST_HEADERS})
+add_executable(jcc_test ${TEST_SOURCES} ${TEST_HEADERS} src/test_printer.cpp)
 add_coverage(jcc_test)
 
 #
