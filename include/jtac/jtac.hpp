@@ -34,7 +34,8 @@ namespace jtac {
   {
     JTAC_OP_UNDEF = 0xFFFF,
 
-    JTAC_OP_ASSIGN_ADD = 0,   // t1 = t2 + t3
+    JTAC_OP_ASSIGN = 0,       // t1 = t2
+    JTAC_OP_ASSIGN_ADD,       // t1 = t2 + t3
     JTAC_OP_ASSIGN_SUB,       // t1 = t2 - t3
     JTAC_OP_ASSIGN_MUL,       // t1 = t2 * t3
     JTAC_OP_ASSIGN_DIV,       // t1 = t2 / t3

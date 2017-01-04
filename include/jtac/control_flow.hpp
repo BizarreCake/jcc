@@ -22,6 +22,7 @@
 #include "jtac/jtac.hpp"
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 
 namespace jcc {
@@ -38,6 +39,7 @@ namespace jtac {
   {
     basic_block_id id;
     std::vector<jtac_instruction> insts;
+    size_t base;
 
     std::vector<std::shared_ptr<basic_block>> prev;
     std::vector<std::shared_ptr<basic_block>> next;
@@ -48,6 +50,9 @@ namespace jtac {
 
     inline const auto& get_prev () const { return this->prev; }
     inline const auto& get_next () const { return this->next; }
+
+    inline size_t get_base () const { return this->base; }
+    inline void set_base (size_t base) { this->base = base; }
 
    public:
     basic_block (basic_block_id id);
@@ -84,15 +89,29 @@ namespace jtac {
     control_flow_graph_type type;
     std::shared_ptr<basic_block> root;
 
+    std::unordered_map<basic_block_id, std::shared_ptr<basic_block>> block_map;
+    std::vector<std::shared_ptr<basic_block>> blocks;
+
    public:
     inline control_flow_graph_type get_type () const { return this->type; }
 
     inline auto& get_root () { return this->root; }
     inline const auto& get_root () const { return this->root; }
 
+    inline auto& get_blocks () { return this->blocks; }
+    inline const auto& get_blocks () const { return this->blocks; }
+
    public:
     control_flow_graph (control_flow_graph_type type,
                         std::shared_ptr<basic_block> root);
+
+   public:
+    //! \brief Inserts the specified <id, block> pair to the CFG.
+    void map_block (basic_block_id id,
+                    std::shared_ptr<basic_block> blk);
+
+    //! \brief Searches for a block in the CFG by ID.
+    std::shared_ptr<basic_block> find_block (basic_block_id id);
   };
 
 

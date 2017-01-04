@@ -66,6 +66,28 @@ namespace jtac {
     return lbl;
   }
 
+  //! \brief Updates label references where the label location is known.
+  void
+  assembler::fix_labels ()
+  {
+    for (auto itr = this->lbl_uses.begin (); itr != this->lbl_uses.end (); )
+      {
+        auto& use = *itr;
+
+        auto itr_fix = this->lbl_fixes.find (use.lbl);
+        if (itr_fix == this->lbl_fixes.end ())
+          { ++ itr; continue; }
+
+        auto fix_pos = itr_fix->second;
+        auto& inst = this->insts[use.pos];
+        auto delta = (int)fix_pos - (int)(use.pos + 1);
+        inst.oprs[0].type = JTAC_OPR_OFFSET;
+        inst.oprs[0].val.off = jtac_offset (delta);
+
+        itr = this->lbl_uses.erase (itr);
+      }
+  }
+
 
 
   //! \brief Overwrites or inserts a new instruction and returns it.
@@ -73,8 +95,13 @@ namespace jtac {
   assembler::put_instruction ()
   {
     if (this->pos < this->insts.size ())
-      return this->insts[this->pos];
+      {
+        auto& inst = this->insts[this->pos];
+        ++ this->pos;
+        return inst;
+      }
 
+    ++ this->pos;
     this->insts.emplace_back ();
     return this->insts.back ();
   }

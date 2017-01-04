@@ -30,6 +30,8 @@ namespace jtac {
   {
     switch (op)
       {
+      case JTAC_OP_UNDEF:       return "<undef>";
+      case JTAC_OP_ASSIGN:      return "=";
       case JTAC_OP_ASSIGN_ADD:  return "+";
       case JTAC_OP_ASSIGN_SUB:  return "-";
       case JTAC_OP_ASSIGN_MUL:  return "*";
@@ -44,6 +46,7 @@ namespace jtac {
       case JTAC_OP_JLE:         return "jle";
       case JTAC_OP_JG:          return "jg";
       case JTAC_OP_JGE:         return "jge";
+      case JTAC_OP_RET:         return "ret";
 
       case JTAC_SOP_ASSIGN_PHI: return "phi";
       }
@@ -55,6 +58,10 @@ namespace jtac {
   {
     switch (ins.op)
       {
+      case JTAC_OP_UNDEF:
+        strm << "<undef>";
+        break;
+
       case JTAC_OP_ASSIGN_ADD:
       case JTAC_OP_ASSIGN_SUB:
       case JTAC_OP_ASSIGN_MUL:
@@ -67,6 +74,12 @@ namespace jtac {
         this->print_operand (ins.oprs[1], strm);
         strm << ' ' << _get_opcode_mnemonic (ins.op) << ' ';
         this->print_operand (ins.oprs[2], strm);
+        break;
+
+      case JTAC_OP_ASSIGN:
+        this->print_operand (ins.oprs[0], strm);
+        strm << " = ";
+        this->print_operand (ins.oprs[1], strm);
         break;
 
       case JTAC_OP_CMP:
@@ -84,6 +97,7 @@ namespace jtac {
       case JTAC_OP_JLE:
       case JTAC_OP_JG:
       case JTAC_OP_JGE:
+      case JTAC_OP_RET:
         strm << _get_opcode_mnemonic (ins.op);
         strm << ' ';
         this->print_operand (ins.oprs[0], strm);
@@ -96,6 +110,8 @@ namespace jtac {
   printer::print_instruction (const jtac_instruction& ins)
   {
     std::ostringstream ss;
+    this->base = 0;
+    this->inst_idx = 0;
     this->print_instruction (ins, ss);
     return ss.str ();
   }
@@ -109,6 +125,8 @@ namespace jtac {
   void
   printer::print_basic_block (const basic_block& blk, std::ostream& strm)
   {
+    this->base = blk.get_base ();
+
     auto& insts = blk.get_instructions ();
     int lpad = _log10 ((int)insts.size ()) + 1;
 
@@ -116,10 +134,28 @@ namespace jtac {
     strm << std::string ((size_t)(14 + _log10 (blk.get_id ())), '-') << '\n';
     for (size_t i = 0; i < insts.size (); ++i)
       {
-        strm << std::setw (lpad) << std::setfill ('0') << i << ": "
+        this->inst_idx = this->base + i;
+        strm << std::setw (lpad) << std::setfill ('0') << (this->inst_idx) << ": "
              << std::setfill (' ');
         this->print_instruction (insts[i], strm);
+        strm << '\n';
       }
+
+    // print names of attached blocks
+    strm << std::string ((size_t)(14 + _log10 (blk.get_id ())), '-') << '\n';
+
+    strm << "Prev:";
+    for (auto& b : blk.get_prev ())
+      strm << " #" << b->get_id ();
+    if (blk.get_prev ().empty ())
+      strm << " none";
+    strm << '\n';
+
+    strm << "Next:";
+    for (auto& b : blk.get_next ())
+      strm << " #" << b->get_id ();
+    if (blk.get_next ().empty ())
+      strm << " none";
   }
 
   //! \brief Prints the specified basic block into a string.
@@ -148,7 +184,7 @@ namespace jtac {
         break;
 
       case jtac_operand_type::JTAC_OPR_OFFSET:
-        strm << opr.val.off.get_offset ();
+        strm << (this->inst_idx + 1 + opr.val.off.get_offset ());
         break;
 
       case jtac_operand_type::JTAC_OPR_LABEL:

@@ -33,6 +33,9 @@ namespace jtac {
    */
   class printer
   {
+    size_t base;
+    size_t inst_idx;
+
    public:
     //! \brief Prints the specified instruction onto the given stream.
     void print_instruction (const jtac_instruction& ins, std::ostream& strm);

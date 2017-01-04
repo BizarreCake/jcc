@@ -28,6 +28,7 @@ namespace jtac {
   basic_block::basic_block (basic_block_id id)
   {
     this->id = id;
+    this->base = 0;
   }
 
 
@@ -62,6 +63,26 @@ namespace jtac {
       : root (root)
   {
     this->type = type;
+  }
+
+
+
+  //! \brief Inserts the specified <id, block> pair to the CFG.
+  void
+  control_flow_graph::map_block (basic_block_id id,
+                                 std::shared_ptr<basic_block> blk)
+  {
+    this->block_map[id] = blk;
+    this->blocks.push_back (blk);
+  }
+
+  //! \brief Searches for a block in the CFG by ID.
+  std::shared_ptr<basic_block>
+  control_flow_graph::find_block (basic_block_id id)
+  {
+    auto itr = this->block_map.find (id);
+    return (itr == this->block_map.end ()) ? std::shared_ptr<basic_block> ()
+                                           : itr->second;
   }
 
 
@@ -140,7 +161,7 @@ namespace jtac {
 
         if (_is_branch_instruction (last))
           {
-            auto target_idx = p.first + 1 + last.oprs[0].val.off.get_offset ();
+            auto target_idx = p.first + blk->get_instructions ().size () + last.oprs[0].val.off.get_offset ();
             if (blocks.find (target_idx) != blocks.end ())
               {
                 auto& target = blocks[target_idx];
@@ -148,14 +169,26 @@ namespace jtac {
                 blk->add_next (target);
               }
           }
-
-        auto next_idx = p.first + 1;
-        auto& next_blk = blocks[next_idx];
-        next_blk->add_prev (blk);
-        blk->add_next (next_blk);
+        if (last.op != JTAC_OP_JMP)
+          {
+            auto next_idx = p.first + blk->get_instructions ().size ();
+            auto itr = blocks.find (next_idx);
+            if (itr != blocks.end ())
+              {
+                auto& next_blk = itr->second;
+                next_blk->add_prev (blk);
+                blk->add_next (next_blk);
+              }
+          }
       }
 
-    return control_flow_graph (control_flow_graph_type::normal, blocks[0]);
+    auto cfg = control_flow_graph (control_flow_graph_type::normal, blocks[0]);
+    for (auto& p : blocks)
+      {
+        cfg.map_block (p.second->get_id (), p.second);
+        p.second->set_base (p.first);
+      }
+    return cfg;
   }
 
 

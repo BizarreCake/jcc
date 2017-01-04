@@ -72,6 +72,9 @@ namespace jtac {
     //! \brief Calls make_label() and mark_label() in succession.
     jtac_label_id make_and_mark_label ();
 
+    //! \brief Updates label references where the label location is known.
+    void fix_labels ();
+
    public:
     //
     // emit methods:
@@ -96,6 +99,7 @@ namespace jtac {
     emit_##NAME (const jtac_operand& a, const jtac_operand& b)        \
     { this->emit_basic2 ((OPC), a, b); }
 
+    DEF_BASIC2(assign, JTAC_OP_ASSIGN)
     DEF_BASIC2(cmp, JTAC_OP_CMP)
 
 #undef DEF_BASIC2
