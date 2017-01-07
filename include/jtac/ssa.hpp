@@ -19,7 +19,12 @@
 #ifndef _JCC__JTAC__SSA__H_
 #define _JCC__JTAC__SSA__H_
 
+#include "jtac/jtac.hpp"
 #include "jtac/control_flow.hpp"
+#include "jtac/data_flow.hpp"
+#include <set>
+#include <map>
+#include <stack>
 
 
 namespace jcc {
@@ -31,13 +36,44 @@ namespace jtac {
    */
   class ssa_builder
   {
+    control_flow_graph *cfg;
+
+    std::set<jtac_var_id> globals;
+    std::map<jtac_var_id, std::set<basic_block_id>> def_blocks;
+    dom_analysis dom_results;
+
+    // used when renaming:
+    std::map<jtac_var_id, int> counters;
+    std::map<jtac_var_id, std::stack<int>> stacks;
+
    public:
     /*!
-       \brief Builds a new CFG in maximal SSA form.
+       \brief Transforms the specified CFG into SSA form.
        \param cfg The control flow graph to transform.
-       \return A copy of the CFG in maximal SSA form.
      */
-    control_flow_graph build_maximal (const control_flow_graph& cfg);
+    void transform (control_flow_graph& cfg);
+
+   private:
+    /*!
+       Inserts phi-functions at the start of every block that has multiple
+       predecessors. A phi-function is inserted for every name that is defined
+       or used in the control flow graph.
+     */
+    void insert_phi_functions ();
+
+    //! \brief Finds all variables that are live across multiple blocks.
+    void find_globals (std::set<jtac_var_id>& globals,
+                       std::map<jtac_var_id, std::set<basic_block_id>>& blocks);
+
+    //! \brief Renames variables so that each definition is unique.
+    void rename ();
+
+    void rename_block (basic_block& blk);
+
+    jtac_var_id new_name (jtac_var_id base);
+
+    //! \brief Returns a list of all variables defined or used in the CFG.
+    std::set<jtac_var_id> enum_vars ();
   };
 }
 }

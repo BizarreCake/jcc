@@ -46,6 +46,8 @@ namespace jtac {
 
    public:
     inline basic_block_id get_id () const { return this->id; }
+
+    inline auto& get_instructions () { return this->insts; }
     inline const auto& get_instructions () const { return this->insts; }
 
     inline const auto& get_prev () const { return this->prev; }
@@ -60,6 +62,15 @@ namespace jtac {
    public:
     //! \brief Inserts the specified instruction to the end of the block.
     void push_instruction (const jtac_instruction& inst);
+
+    //! \brief Inserts the specified instruction to the beginning of the block.
+    void push_instruction_front (const jtac_instruction& inst);
+
+    //! \brief Inserts a range of instructions to the beginning of the block.
+    template<typename Itr>
+    void
+    push_instructions_front (Itr start, Itr end)
+    { this->insts.insert (this->insts.begin (), start, end); }
 
     //! \brief Inserts a basic block to this block's list of predecessor blocks.
     void add_prev (std::shared_ptr<basic_block> blk);
@@ -112,6 +123,7 @@ namespace jtac {
 
     //! \brief Searches for a block in the CFG by ID.
     std::shared_ptr<basic_block> find_block (basic_block_id id);
+    std::shared_ptr<const basic_block> find_block (basic_block_id id) const;
   };
 
 

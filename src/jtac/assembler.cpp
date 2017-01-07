@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <jtac/jtac.hpp>
 #include "jtac/assembler.hpp"
 
 
@@ -106,30 +107,6 @@ namespace jtac {
     return this->insts.back ();
   }
 
-  static void
-  _set_operand (jtac_instruction& inst, int index, const jtac_operand& opr)
-  {
-    inst.oprs[index].type = opr.get_type ();
-    switch (opr.get_type ())
-      {
-      case JTAC_OPR_CONST:
-        inst.oprs[index].val.konst = static_cast<const jtac_const&> (opr);
-        break;
-
-      case JTAC_OPR_VAR:
-        inst.oprs[index].val.var = static_cast<const jtac_var&> (opr);
-        break;
-
-      case JTAC_OPR_LABEL:
-        inst.oprs[index].val.lbl = static_cast<const jtac_label&> (opr);
-        break;
-
-      case JTAC_OPR_OFFSET:
-        inst.oprs[index].val.off = static_cast<const jtac_offset&> (opr);
-        break;
-      }
-  }
-
   //! \brief Emits a standard instruction in the form of: r = a <op> b
   void
   assembler::emit_basic3 (jtac_opcode op, const jtac_operand& r,
@@ -137,9 +114,9 @@ namespace jtac {
   {
     auto& inst = this->put_instruction ();
     inst.op = op;
-    _set_operand (inst, 0, r);
-    _set_operand (inst, 1, a);
-    _set_operand (inst, 2, b);
+    inst.oprs[0] = r;
+    inst.oprs[1] = a;
+    inst.oprs[2] = b;
   }
 
   //! \brief Emits a binary instruction in the form of: a <op> b
@@ -149,8 +126,8 @@ namespace jtac {
   {
     auto& inst = this->put_instruction ();
     inst.op = op;
-    _set_operand (inst, 0, a);
-    _set_operand (inst, 1, b);
+    inst.oprs[0] = a;
+    inst.oprs[1] = b;
   }
 
   //! \brief Emits an instruction that takes a single operand.
@@ -165,8 +142,34 @@ namespace jtac {
 
     auto& inst = this->put_instruction ();
     inst.op = op;
-    _set_operand (inst, 0, opr);
+    inst.oprs[0] = opr;
   }
 
+
+
+  jtac_instruction&
+  assembler::emit_assign_call (const jtac_operand& dest, const jtac_operand& target)
+  {
+    auto& inst = this->put_instruction ();
+    inst.op = JTAC_OP_ASSIGN_CALL;
+    inst.oprs[0] = dest;
+    inst.oprs[1] = target;
+    inst.extra.count = 0;
+    inst.extra.cap = 4;
+    inst.extra.oprs = new jtac_tagged_operand[inst.extra.cap];
+    return inst;
+  }
+
+  jtac_instruction&
+  assembler::emit_assign_phi (const jtac_operand& dest)
+  {
+    auto& inst = this->put_instruction ();
+    inst.op = JTAC_SOP_ASSIGN_PHI;
+    inst.oprs[0] = dest;
+    inst.extra.count = 0;
+    inst.extra.cap = 4;
+    inst.extra.oprs = new jtac_tagged_operand[inst.extra.cap];
+    return inst;
+  }
 }
 }

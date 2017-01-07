@@ -20,6 +20,7 @@
 #include <ostream>
 #include <iomanip>
 #include <sstream>
+#include <jtac/jtac.hpp>
 
 
 namespace jcc {
@@ -50,6 +51,8 @@ namespace jtac {
 
       case JTAC_SOP_ASSIGN_PHI: return "phi";
       }
+
+    return "<>";
   }
 
   //! \brief Prints the specified instruction onto the given stream.
@@ -68,7 +71,6 @@ namespace jtac {
       case JTAC_OP_ASSIGN_DIV:
       case JTAC_OP_ASSIGN_MOD:
       case JTAC_OP_ASSIGN_CALL:
-      case JTAC_SOP_ASSIGN_PHI:
         this->print_operand (ins.oprs[0], strm);
         strm << " = ";
         this->print_operand (ins.oprs[1], strm);
@@ -102,6 +104,17 @@ namespace jtac {
         strm << ' ';
         this->print_operand (ins.oprs[0], strm);
         break;
+
+      case JTAC_SOP_ASSIGN_PHI:
+        this->print_operand (ins.oprs[0], strm);
+        strm << " = phi(";
+        for (int i = 0; i < ins.extra.count; ++i)
+          {
+            this->print_operand (ins.extra.oprs[i], strm);
+            if (i != (int)ins.extra.count - 1)
+              strm << ", ";
+          }
+        strm << ')';
       }
   }
 
@@ -180,7 +193,12 @@ namespace jtac {
         break;
 
       case jtac_operand_type::JTAC_OPR_VAR:
-        strm << 't' << opr.val.var.get_id ();
+        {
+          auto var = opr.val.var.get_id ();
+          strm << 't' << var_base (var);
+          if (var_subscript (var) != 0)
+            strm << '_' << var_subscript (var);
+        }
         break;
 
       case jtac_operand_type::JTAC_OPR_OFFSET:

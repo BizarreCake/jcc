@@ -20,7 +20,7 @@ enable_testing()
 # enable code coverage
 find_package(codecov)
 
-add_library(jcc SHARED ${JCC_SOURCES} ${JCC_HEADERS} include/linker/translators/elf64/object_file.hpp src/linker/translators/elf64/object_file.cpp include/linker/translators/elf64/section.hpp src/linker/translators/elf64/section.cpp include/common/binary.hpp include/linker/translators/elf64/segment.hpp src/linker/translators/elf64/segment.cpp src/assembler/relocation.cpp src/linker/translators/elf64/elf64.cpp include/linker/linker.hpp src/linker/linker.cpp include/jtac/jtac.hpp include/jtac/assembler.hpp src/jtac/assembler.cpp include/jtac/control_flow.hpp src/jtac/control_flow.cpp include/jtac/live.hpp src/jtac/live.cpp include/jtac/ssa.hpp src/jtac/ssa.cpp include/jtac/printer.hpp src/jtac/printer.cpp)
+add_library(jcc SHARED ${JCC_SOURCES} ${JCC_HEADERS} include/linker/translators/elf64/object_file.hpp src/linker/translators/elf64/object_file.cpp include/linker/translators/elf64/section.hpp src/linker/translators/elf64/section.cpp include/common/binary.hpp include/linker/translators/elf64/segment.hpp src/linker/translators/elf64/segment.cpp src/assembler/relocation.cpp src/linker/translators/elf64/elf64.cpp include/linker/linker.hpp src/linker/linker.cpp include/jtac/jtac.hpp include/jtac/assembler.hpp src/jtac/assembler.cpp include/jtac/control_flow.hpp src/jtac/control_flow.cpp include/jtac/ssa.hpp src/jtac/ssa.cpp include/jtac/printer.hpp src/jtac/printer.cpp src/jtac/jtac.cpp include/jtac/data_flow.hpp src/jtac/data_flow.cpp)
 add_coverage(jcc)
 
 add_subdirectory(test)

@@ -55,6 +55,25 @@ namespace jtac {
     JTAC_SOP_ASSIGN_PHI,      // t1 = phi(t2, t3, ...)
   };
 
+  //! \brief Returns true if the opcode described an instruction of the form: X = Y.
+  bool is_opcode_assign (jtac_opcode op);
+
+
+  enum jtac_opcode_class
+  {
+    JTAC_OPC_NONE,
+    JTAC_OPC_ASSIGN2,           // x = y
+    JTAC_OPC_ASSIGN3,           // x = y op z
+    JTAC_OPC_USE1,              // op x
+    JTAC_OPC_USE2,              // op x, y
+    JTAC_OPC_ASSIGN_CALL,       // x = y(oprs...)
+    JTAC_OPC_ASSIGN_FIXED_CALL, // x = FIXED(oprs...)
+  };
+
+  //! \brief Returns the class of the specified opcode.
+  jtac_opcode_class get_opcode_class (jtac_opcode op);
+
+
 
   /*!
      \enum jtac_operand_type
@@ -109,6 +128,13 @@ namespace jtac {
 
   //! \brief Variable identifier.
   using jtac_var_id = int;
+
+  inline jtac_var_id
+  make_var_id (int base, int subscript = 0)
+  { return base | (subscript << 16); }
+
+  inline int var_base (jtac_var_id id) { return id & 0xFFFF; }
+  inline int var_subscript (jtac_var_id id) { return id >> 16; }
 
   /*!
      \class jtac_var
@@ -216,28 +242,15 @@ namespace jtac {
     { }
 
     jtac_tagged_operand (const jtac_tagged_operand& other)
-        : type (other.type)
-    {
-      switch (this->type)
-        {
-          case JTAC_OPR_CONST: this->val.konst = other.val.konst; break;
-          case JTAC_OPR_VAR: this->val.var = other.val.var; break;
-          case JTAC_OPR_LABEL: this->val.lbl = other.val.lbl; break;
-          case JTAC_OPR_OFFSET: this->val.off = other.val.off; break;
-        }
-    }
+    { *this = other; }
 
     jtac_tagged_operand (jtac_tagged_operand&& other)
-        : type (other.type)
-    {
-      switch (this->type)
-        {
-        case JTAC_OPR_CONST: this->val.konst = std::move (other.val.konst); break;
-        case JTAC_OPR_VAR: this->val.var = std::move (other.val.var); break;
-        case JTAC_OPR_LABEL: this->val.lbl = std::move (other.val.lbl); break;
-        case JTAC_OPR_OFFSET: this->val.off = std::move (other.val.off); break;
-        }
-    }
+    { *this = std::move (other); }
+
+   public:
+    jtac_tagged_operand& operator= (const jtac_tagged_operand& other);
+    jtac_tagged_operand& operator= (jtac_tagged_operand&& other);
+    jtac_tagged_operand& operator= (const jtac_operand& opr);
   };
 
 
@@ -252,8 +265,22 @@ namespace jtac {
     struct
     {
       unsigned char count;
+      unsigned char cap;
       jtac_tagged_operand *oprs;
     } extra;
+
+   public:
+    jtac_instruction ();
+    jtac_instruction (const jtac_instruction& other);
+    jtac_instruction (jtac_instruction&& other);
+
+   public:
+    //! \brief Inserts the specified operand into the instruction's "extra" list.
+    jtac_instruction& push_extra (const jtac_operand& opr);
+
+   public:
+    jtac_instruction& operator= (const jtac_instruction& other);
+    jtac_instruction& operator= (jtac_instruction&& other);
   };
 }
 }

@@ -120,6 +120,11 @@ namespace jtac {
 
 #undef DEF_BASIC1
 
+    jtac_instruction& emit_assign_call (const jtac_operand& dest,
+                                        const jtac_operand& target);
+
+    jtac_instruction& emit_assign_phi (const jtac_operand& dest);
+
    private:
     //! \brief Overwrites or inserts a new instruction and returns it.
     jtac_instruction &put_instruction ();

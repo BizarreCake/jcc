@@ -40,6 +40,13 @@ namespace jtac {
     this->insts.push_back (inst);
   }
 
+  //! \brief Inserts the specified instruction to the beginning of the block.
+  void
+  basic_block::push_instruction_front (const jtac_instruction& inst)
+  {
+    this->insts.insert (this->insts.begin (), inst);
+  }
+
   //! \brief Inserts a basic block to this block's list of predecessor blocks.
   void
   basic_block::add_prev (std::shared_ptr<basic_block> blk)
@@ -82,6 +89,14 @@ namespace jtac {
   {
     auto itr = this->block_map.find (id);
     return (itr == this->block_map.end ()) ? std::shared_ptr<basic_block> ()
+                                           : itr->second;
+  }
+
+  std::shared_ptr<const basic_block>
+  control_flow_graph::find_block (basic_block_id id) const
+  {
+    auto itr = this->block_map.find (id);
+    return (itr == this->block_map.end ()) ? std::shared_ptr<const basic_block> ()
                                            : itr->second;
   }
 
