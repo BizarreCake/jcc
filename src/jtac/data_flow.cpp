@@ -1,6 +1,6 @@
 /*
  * jcc - A compiler framework.
- * Copyright (C) 2016 Jacob Zhitomirsky
+ * Copyright (C) 2016-2017 Jacob Zhitomirsky
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -427,6 +427,119 @@ namespace jtac {
           frag->doms.insert (b->get_id ());
       }
 
+    return std::unique_ptr<fragment> (frag);
+  }
+
+
+
+//------------------------------------------------------------------------------
+
+  void
+  live_analysis::add_block (basic_block_id id, std::set<jtac_var_id>&& live_out)
+  {
+    this->block_map[id] = live_out;
+  }
+
+  //! \brief Returns the variables live on exit from the specified block.
+  const std::set<jtac_var_id>&
+  live_analysis::get_live_out (basic_block_id id)
+  {
+    return this->block_map[id];
+  }
+
+
+
+  /*!
+     \brief Performs live-variable analysis on the specified CFG.
+     \param cfg The control flow graph to analyze.
+     \return The results of the analysis.
+   */
+  live_analysis
+  live_analyzer::analyze (const control_flow_graph& cfg)
+  {
+    this->set_active_cfg (cfg);
+    this->compute_ue_var_and_var_kill ();
+    this->solve (cfg);
+
+    live_analysis result;
+    for (auto& blk : cfg.get_blocks ())
+      {
+        auto& my_frag = static_cast<my_fragment &> (this->get_fragment (*blk));
+        result.add_block (blk->get_id (), std::move (my_frag.live_out));
+      }
+
+    return result;
+  }
+
+
+
+  //! \brief Computes the sets of upward-exposed variables and killed variables.
+  void
+  live_analyzer::compute_ue_var_and_var_kill ()
+  {
+    for (auto& blk : this->cfg->get_blocks ())
+      {
+        auto& ue_var = this->ue_vars[blk->get_id ()];
+        auto& var_kill = this->var_kills[blk->get_id ()];
+
+        auto& insts = blk->get_instructions ();
+        for (auto& inst : insts)
+          {
+            int opr_start = is_opcode_assign (inst.op) ? 1 : 0;
+            int opr_end = get_operand_count (inst.op);
+            for (int i = opr_start; i < opr_end; ++i)
+              if (inst.oprs[i].type == JTAC_OPR_VAR)
+                {
+                  auto var = inst.oprs[i].val.var.get_id ();
+                  if (var_kill.find (var) == var_kill.end ())
+                    ue_var.insert (var);
+                }
+            if (has_extra_operands (inst.op))
+              for (int i = 0; i < inst.extra.count; ++i)
+                if (inst.extra.oprs[i].type == JTAC_OPR_VAR)
+                  {
+                    auto var = inst.extra.oprs[i].val.var.get_id ();
+                    if (var_kill.find (var) == var_kill.end ())
+                      ue_var.insert (var);
+                  }
+
+            if (is_opcode_assign (inst.op) && inst.oprs[0].type == JTAC_OPR_VAR)
+              var_kill.insert (inst.oprs[0].val.var.get_id ());
+          }
+      }
+  }
+
+
+
+  bool
+  live_analyzer::compute_fragment (fragment& frag, const basic_block& blk)
+  {
+    std::set<jtac_var_id> live_out;
+
+    for (auto& next : blk.get_next ())
+      {
+        auto& next_frag = static_cast<my_fragment&> (this->get_fragment (*next));
+        auto& next_ue_vars = this->ue_vars[next->get_id ()];
+        auto& next_var_kill = this->var_kills[next->get_id ()];
+
+        for (auto var : next_ue_vars)
+          live_out.insert (var);
+        for (auto var : next_frag.live_out)
+          if (next_var_kill.find (var) == next_var_kill.end ())
+            live_out.insert (var);
+      }
+
+    auto& my_frag = static_cast<my_fragment&> (this->get_fragment (blk));
+    bool modified = !_sets_equal (my_frag.live_out, live_out);
+    if (modified)
+      my_frag.live_out = std::move (live_out);
+    return modified;
+  }
+
+  std::unique_ptr<live_analyzer::fragment>
+  live_analyzer::compute_init_fragment (const basic_block& blk)
+  {
+    auto frag = new my_fragment ();
     return std::unique_ptr<fragment> (frag);
   }
 }

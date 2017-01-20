@@ -1,6 +1,6 @@
 /*
  * jcc - A compiler framework.
- * Copyright (C) 2016 Jacob Zhitomirsky
+ * Copyright (C) 2016-2017 Jacob Zhitomirsky
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,21 @@ namespace jtac {
 
     return "<>";
   }
+
+  //! \brief Prints the specified opcode's mnemonic onto the given stream.
+  void
+  printer::print_mnemonic (jtac_opcode op, std::ostream& strm)
+  {
+    strm << _get_opcode_mnemonic (op);
+  }
+
+  //! \brief Prints the specified opcode's mnemonic into a string.
+  std::string
+  printer::print_mnemonic (jtac_opcode op)
+  {
+    return _get_opcode_mnemonic (op);
+  }
+
 
   //! \brief Prints the specified instruction onto the given stream.
   void

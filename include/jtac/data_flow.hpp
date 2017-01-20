@@ -1,6 +1,6 @@
 /*
  * jcc - A compiler framework.
- * Copyright (C) 2016 Jacob Zhitomirsky
+ * Copyright (C) 2016-2017 Jacob Zhitomirsky
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -199,6 +199,58 @@ namespace jtac {
 
     //! \brief Computes dominance frontiers.
     void compute_dfs (dom_analysis& result);
+
+   protected:
+    virtual bool compute_fragment (fragment& frag, const basic_block& blk) override;
+
+    virtual std::unique_ptr<fragment> compute_init_fragment (const basic_block& blk) override;
+  };
+
+
+
+//------------------------------------------------------------------------------
+
+  /*!
+     \class live_analysis
+     \brief Live-variable analysis results.
+   */
+  class live_analysis
+  {
+    std::unordered_map<basic_block_id, std::set<jtac_var_id>> block_map;
+
+   public:
+    void add_block (basic_block_id id, std::set<jtac_var_id>&& live_out);
+
+    //! \brief Returns the variables live on exit from the specified block.
+    const std::set<jtac_var_id>& get_live_out (basic_block_id id);
+  };
+
+  /*!
+     \class live_analyzer
+     \brief Live-variable analyzer.
+   */
+  class live_analyzer: public iterative_analyzer
+  {
+    struct my_fragment: public fragment
+    {
+      std::set<jtac_var_id> live_out;
+    };
+
+   private:
+    std::map<basic_block_id, std::set<jtac_var_id>> ue_vars;
+    std::map<basic_block_id, std::set<jtac_var_id>> var_kills;
+
+   public:
+    /*!
+       \brief Performs live-variable analysis on the specified CFG.
+       \param cfg The control flow graph to analyze.
+       \return The results of the analysis.
+     */
+    live_analysis analyze (const control_flow_graph& cfg);
+
+   private:
+    //! \brief Computes the sets of upward-exposed variables and killed variables.
+    void compute_ue_var_and_var_kill ();
 
    protected:
     virtual bool compute_fragment (fragment& frag, const basic_block& blk) override;

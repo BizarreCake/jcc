@@ -1,6 +1,6 @@
 /*
  * jcc - A compiler framework.
- * Copyright (C) 2016 Jacob Zhitomirsky
+ * Copyright (C) 2016-2017 Jacob Zhitomirsky
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,12 @@ namespace jtac {
 
   //! \brief Returns the class of the specified opcode.
   jtac_opcode_class get_opcode_class (jtac_opcode op);
+
+  //! \brief Returns the number of operands used by the specified opcode.
+  int get_operand_count (jtac_opcode op);
+
+  //! \brief Checks whether the specified opcode requires extra operands.
+  bool has_extra_operands (jtac_opcode op);
 
 
 

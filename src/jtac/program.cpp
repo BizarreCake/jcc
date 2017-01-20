@@ -16,9 +16,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _JCC__CONFIG__H_
-#define _JCC__CONFIG__H_
+#include "jtac/program.hpp"
 
 
-#endif
+namespace jcc {
+namespace jtac {
 
+  procedure::procedure (const std::string& name)
+      : name (name)
+  {
+  }
+
+
+}
+}

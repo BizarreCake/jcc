@@ -1,6 +1,6 @@
 /*
  * jcc - A compiler framework.
- * Copyright (C) 2016 Jacob Zhitomirsky
+ * Copyright (C) 2016-2017 Jacob Zhitomirsky
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,47 +110,6 @@ namespace jtac {
       }
   }
 
-  static void
-  _get_operands (jtac_opcode op, int& opr_start, int& opr_end, bool& extra_oprs)
-  {
-    opr_start = 0;
-    opr_end = 0;
-    extra_oprs = false;
-    switch (get_opcode_class (op))
-      {
-        case JTAC_OPC_NONE:
-          break;
-
-        case JTAC_OPC_ASSIGN2:
-          opr_start = 1;
-        opr_end = 2;
-        break;
-
-        case JTAC_OPC_ASSIGN3:
-          opr_start = 1;
-        opr_end = 3;
-        break;
-
-        case JTAC_OPC_USE1:
-          opr_end = 1;
-        break;
-
-        case JTAC_OPC_USE2:
-          opr_end = 2;
-        break;
-
-        case JTAC_OPC_ASSIGN_CALL:
-          opr_start = 1;
-        opr_end = 2;
-        extra_oprs = true;
-        break;
-
-        case JTAC_OPC_ASSIGN_FIXED_CALL:
-          extra_oprs = true;
-        break;
-      }
-  }
-
   //! \brief Finds all variables that are live across multiple blocks.
   void
   ssa_builder::find_globals (std::set<jtac_var_id>& globals,
@@ -161,15 +120,13 @@ namespace jtac {
         std::set<jtac_var_id> kill;
         for (auto& inst : blk->get_instructions ())
           {
-            int opr_start, opr_end;
-            bool extra_oprs;
-            _get_operands (inst.op, opr_start, opr_end, extra_oprs);
-
+            int opr_start = is_opcode_assign (inst.op) ? 1 : 0;
+            int opr_end = get_operand_count (inst.op);
             for (int i = opr_start; i < opr_end; ++i)
               if (inst.oprs[i].type == JTAC_OPR_VAR &&
                   kill.find (inst.oprs[i].val.var.get_id ()) == kill.end ())
                 globals.insert (inst.oprs[i].val.var.get_id ());
-            if (extra_oprs)
+            if (has_extra_operands (inst.op))
               for (int i = 0; i < inst.extra.count; ++i)
                 if (inst.extra.oprs[i].type == JTAC_OPR_VAR &&
                     kill.find (inst.extra.oprs[i].val.var.get_id ()) == kill.end ())
@@ -202,9 +159,8 @@ namespace jtac {
           inst.oprs[0].val.var.set_id (this->new_name (inst.oprs[0].val.var.get_id ()));
         else
           {
-            int opr_start, opr_end;
-            bool extra_oprs;
-            _get_operands (inst.op, opr_start, opr_end, extra_oprs);
+            int opr_start = is_opcode_assign (inst.op) ? 1 : 0;
+            int opr_end = get_operand_count (inst.op);
 
             // rename operands
             for (int i = opr_start; i < opr_end; ++i)
@@ -216,7 +172,7 @@ namespace jtac {
                     throw std::runtime_error ("ssa_builder:rename_block: variable used before being defined");
                   inst.oprs[i].val.var.set_id (make_var_id (var, stk.top ()));
                 }
-            if (extra_oprs)
+            if (has_extra_operands (inst.op))
               for (int i = 0; i < inst.extra.count; ++i)
                 if (inst.extra.oprs[i].type == JTAC_OPR_VAR)
                   {

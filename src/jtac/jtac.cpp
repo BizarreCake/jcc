@@ -1,6 +1,6 @@
 /*
  * jcc - A compiler framework.
- * Copyright (C) 2016 Jacob Zhitomirsky
+ * Copyright (C) 2016-2017 Jacob Zhitomirsky
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,6 +95,45 @@ namespace jtac {
       }
 
     throw std::runtime_error ("get_opcode_class: unhandled opcode");
+  }
+
+  //! \brief Returns the number of operands used by the specified opcode.
+  int
+  get_operand_count (jtac_opcode op)
+  {
+    switch (get_opcode_class (op))
+      {
+        case JTAC_OPC_ASSIGN_CALL:       return 2;
+        case JTAC_OPC_ASSIGN_FIXED_CALL: return 1;
+        case JTAC_OPC_NONE:              return 0;
+        case JTAC_OPC_USE1:              return 1;
+        case JTAC_OPC_USE2:              return 2;
+        case JTAC_OPC_ASSIGN2:           return 2;
+        case JTAC_OPC_ASSIGN3:           return 3;
+      }
+
+    throw std::runtime_error ("has_extra_operands: unhandled opcode class");
+  }
+
+  //! \brief Checks whether the specified opcode requires extra operands.
+  bool
+  has_extra_operands (jtac_opcode op)
+  {
+    switch (get_opcode_class (op))
+      {
+      case JTAC_OPC_ASSIGN_CALL:
+      case JTAC_OPC_ASSIGN_FIXED_CALL:
+        return true;
+
+      case JTAC_OPC_NONE:
+      case JTAC_OPC_USE1:
+      case JTAC_OPC_USE2:
+      case JTAC_OPC_ASSIGN2:
+      case JTAC_OPC_ASSIGN3:
+        return false;
+      }
+
+    throw std::runtime_error ("has_extra_operands: unhandled opcode class");
   }
 
 //------------------------------------------------------------------------------
