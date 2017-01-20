@@ -19,6 +19,7 @@
 #include "jtac/parse/token.hpp"
 #include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 
 namespace jcc {

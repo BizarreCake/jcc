@@ -34,13 +34,13 @@ TEST_CASE( "Tokenizing various inputs using the JTAC lexer",
 
     std::istringstream ss (
         ";\n"
-            "; comment\n"
-            ";\n"
-            "proc foo(x, y, z):\n"
-            "        a = x ; another comment\n"
-            "        b = a - y\n"
-            "        c = a * b + z\n"
-            "        ret a");
+        "; comment\n"
+        ";\n"
+        "proc foo(x, y, z):\n"
+        "        a = x ; another comment\n"
+        "        b = a - y\n"
+        "        c = a * b + z\n"
+        "        ret a");
     lexer lx (ss);
 
     auto toks = lx.tokenize ();
@@ -182,7 +182,6 @@ TEST_CASE( "Tokenizing various inputs using the JTAC lexer",
       REQUIRE( toks.next ().type == JTAC_TOK_MOD );
       REQUIRE( toks.peek_next ().type == JTAC_TOK_NAME );
       REQUIRE( std::string (toks.next ().val.str) == "y" );
-
 
       REQUIRE( !toks.has_next () );
     }
