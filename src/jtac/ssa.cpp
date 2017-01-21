@@ -298,6 +298,14 @@ namespace jtac {
                   if (inst.extra.oprs[i].type == JTAC_OPR_VAR)
                     vars.insert (inst.extra.oprs[i].val.var.get_id ());
                 break;
+
+              case JTAC_OP_CALL:
+                if (inst.oprs[0].type == JTAC_OPR_VAR)
+                  vars.insert (inst.oprs[0].val.var.get_id ());
+                for (int i = 0; i < inst.extra.count; ++i)
+                  if (inst.extra.oprs[i].type == JTAC_OPR_VAR)
+                    vars.insert (inst.extra.oprs[i].val.var.get_id ());
+                break;
               }
           }
       }

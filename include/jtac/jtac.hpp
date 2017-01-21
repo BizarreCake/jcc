@@ -50,6 +50,7 @@ namespace jtac {
     JTAC_OP_JG,               // jg lbl
     JTAC_OP_JGE,              // jge lbl
     JTAC_OP_RET,              // ret t1
+    JTAC_OP_CALL,             // call proc (params...)
 
     // special instructions:
     JTAC_SOP_ASSIGN_PHI,      // t1 = phi(t2, t3, ...)
@@ -68,6 +69,7 @@ namespace jtac {
     JTAC_OPC_USE2,              // op x, y
     JTAC_OPC_ASSIGN_CALL,       // x = y(oprs...)
     JTAC_OPC_ASSIGN_FIXED_CALL, // x = FIXED(oprs...)
+    JTAC_OPC_CALL,              // x(oprs...)
   };
 
   //! \brief Returns the class of the specified opcode.
@@ -89,8 +91,9 @@ namespace jtac {
   {
     JTAC_OPR_CONST,  // constant
     JTAC_OPR_VAR,    // variable
-    JTAC_OPR_LABEL,  // label
-    JTAC_OPR_OFFSET, // offset
+    JTAC_OPR_LABEL,
+    JTAC_OPR_OFFSET,
+    JTAC_OPR_NAME,
   };
 
 
@@ -223,6 +226,35 @@ namespace jtac {
   };
 
 
+  //! \brief Name identifier
+  using jtac_name_id = int;
+
+  /*!
+     \struct jtac_name
+     \brief Known name operand.
+   */
+  class jtac_name: public jtac_operand
+  {
+    jtac_name_id id;
+
+   public:
+    inline jtac_name_id get_id () const { return this->id; }
+    inline void set_id (jtac_name_id id) { this->id = id; }
+
+   public:
+    jtac_name ()
+        : id (0)
+    { }
+
+    jtac_name (jtac_name_id id)
+    : id (id)
+        { }
+
+   public:
+    virtual jtac_operand_type get_type () const override { return JTAC_OPR_NAME; }
+  };
+
+
   /*!
      \struct jtac_tagged_operand
      \brief Stores a union of all possible operand types along with the type
@@ -237,6 +269,7 @@ namespace jtac {
       jtac_var var;
       jtac_label lbl;
       jtac_offset off;
+      jtac_name name;
 
       jtac_tagged_operand_value ()
           : konst (0)
@@ -258,6 +291,8 @@ namespace jtac {
     jtac_tagged_operand& operator= (jtac_tagged_operand&& other);
     jtac_tagged_operand& operator= (const jtac_operand& opr);
   };
+
+  jtac_operand& tagged_operand_to_operand (jtac_tagged_operand& opr);
 
 
   /*!

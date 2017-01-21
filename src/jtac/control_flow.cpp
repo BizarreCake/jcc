@@ -136,6 +136,14 @@ namespace jtac {
   control_flow_graph
   control_flow_analyzer::build_graph (const std::vector<jtac_instruction>& insts)
   {
+    if (insts.empty ())
+      {
+        auto root = std::make_shared<basic_block> (this->next_blk_id ++);
+        control_flow_graph cfg (control_flow_graph_type::normal, root);
+        cfg.map_block (root->get_id (), root);
+        return cfg;
+      }
+
     // pick leaders
     std::vector<bool> leaders (insts.size (), false);
     leaders[0] = true; // first instruction is a leader

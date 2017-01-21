@@ -48,6 +48,7 @@ namespace jtac {
       case JTAC_OP_JG:          return "jg";
       case JTAC_OP_JGE:         return "jge";
       case JTAC_OP_RET:         return "ret";
+      case JTAC_OP_CALL:      return "call";
 
       case JTAC_SOP_ASSIGN_PHI: return "phi";
       }
@@ -85,7 +86,6 @@ namespace jtac {
       case JTAC_OP_ASSIGN_MUL:
       case JTAC_OP_ASSIGN_DIV:
       case JTAC_OP_ASSIGN_MOD:
-      case JTAC_OP_ASSIGN_CALL:
         this->print_operand (ins.oprs[0], strm);
         strm << " = ";
         this->print_operand (ins.oprs[1], strm);
@@ -130,6 +130,34 @@ namespace jtac {
               strm << ", ";
           }
         strm << ')';
+        break;
+
+      case JTAC_OP_ASSIGN_CALL:
+        this->print_operand (ins.oprs[0], strm);
+        strm << " = call ";
+        this->print_operand (ins.oprs[1], strm);
+        strm << '(';
+        for (int i = 0; i < ins.extra.count; ++i)
+          {
+            this->print_operand (ins.extra.oprs[i], strm);
+            if (i != (int)ins.extra.count - 1)
+              strm << ", ";
+          }
+        strm << ')';
+        break;
+
+      case JTAC_OP_CALL:
+        strm << "call ";
+        this->print_operand (ins.oprs[0], strm);
+        strm << '(';
+        for (int i = 0; i < ins.extra.count; ++i)
+          {
+            this->print_operand (ins.extra.oprs[i], strm);
+            if (i != (int)ins.extra.count - 1)
+              strm << ", ";
+          }
+        strm << ')';
+        break;
       }
   }
 
@@ -222,6 +250,11 @@ namespace jtac {
 
       case jtac_operand_type::JTAC_OPR_LABEL:
         strm << 'L' << opr.val.lbl.get_id ();
+        break;
+
+      case jtac_operand_type::JTAC_OPR_NAME:
+        // TODO: use name mapping
+        strm << "<name #" << opr.val.name.get_id () << '>';
         break;
       }
   }

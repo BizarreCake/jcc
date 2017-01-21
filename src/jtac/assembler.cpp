@@ -110,7 +110,7 @@ namespace jtac {
   //! \brief Emits a standard instruction in the form of: r = a <op> b
   void
   assembler::emit_basic3 (jtac_opcode op, const jtac_operand& r,
-                              const jtac_operand& a, const jtac_operand& b)
+                          const jtac_operand& a, const jtac_operand& b)
   {
     auto& inst = this->put_instruction ();
     inst.op = op;
@@ -122,7 +122,7 @@ namespace jtac {
   //! \brief Emits a binary instruction in the form of: a <op> b
   void
   assembler::emit_basic2 (jtac_opcode op, const jtac_operand& a,
-                               const jtac_operand& b)
+                          const jtac_operand& b)
   {
     auto& inst = this->put_instruction ();
     inst.op = op;
@@ -146,6 +146,18 @@ namespace jtac {
   }
 
 
+
+  jtac_instruction&
+  assembler::emit_call (const jtac_operand& target)
+  {
+    auto& inst = this->put_instruction ();
+    inst.op = JTAC_OP_CALL;
+    inst.oprs[0] = target;
+    inst.extra.count = 0;
+    inst.extra.cap = 4;
+    inst.extra.oprs = new jtac_tagged_operand[inst.extra.cap];
+    return inst;
+  }
 
   jtac_instruction&
   assembler::emit_assign_call (const jtac_operand& dest, const jtac_operand& target)

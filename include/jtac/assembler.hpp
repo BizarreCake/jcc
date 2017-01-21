@@ -120,6 +120,8 @@ namespace jtac {
 
 #undef DEF_BASIC1
 
+    jtac_instruction& emit_call (const jtac_operand& target);
+
     jtac_instruction& emit_assign_call (const jtac_operand& dest,
                                         const jtac_operand& target);
 

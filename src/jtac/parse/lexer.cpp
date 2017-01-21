@@ -204,6 +204,7 @@ namespace jtac {
 
     static std::unordered_map<std::string, token_type> _keywords {
         { "proc", JTAC_TOK_PROC },
+        { "endproc", JTAC_TOK_ENDPROC },
         { "cmp", JTAC_TOK_CMP },
         { "jmp", JTAC_TOK_JMP },
         { "je", JTAC_TOK_JE },

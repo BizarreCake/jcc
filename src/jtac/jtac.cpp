@@ -49,6 +49,7 @@ namespace jtac {
       case JTAC_OP_JLE:
       case JTAC_OP_JG:
       case JTAC_OP_JGE:
+      case JTAC_OP_CALL:
         return false;
       }
 
@@ -92,6 +93,9 @@ namespace jtac {
 
       case JTAC_SOP_ASSIGN_PHI:
         return JTAC_OPC_ASSIGN_FIXED_CALL;
+
+      case JTAC_OP_CALL:
+        return JTAC_OPC_CALL;
       }
 
     throw std::runtime_error ("get_opcode_class: unhandled opcode");
@@ -110,6 +114,7 @@ namespace jtac {
         case JTAC_OPC_USE2:              return 2;
         case JTAC_OPC_ASSIGN2:           return 2;
         case JTAC_OPC_ASSIGN3:           return 3;
+        case JTAC_OPC_CALL:              return 1;
       }
 
     throw std::runtime_error ("has_extra_operands: unhandled opcode class");
@@ -123,6 +128,7 @@ namespace jtac {
       {
       case JTAC_OPC_ASSIGN_CALL:
       case JTAC_OPC_ASSIGN_FIXED_CALL:
+      case JTAC_OPC_CALL:
         return true;
 
       case JTAC_OPC_NONE:
@@ -146,10 +152,11 @@ namespace jtac {
     this->type = other.type;
     switch (this->type)
       {
-      case JTAC_OPR_CONST: this->val.konst = other.val.konst; break;
-      case JTAC_OPR_VAR: this->val.var = other.val.var; break;
-      case JTAC_OPR_LABEL: this->val.lbl = other.val.lbl; break;
-      case JTAC_OPR_OFFSET: this->val.off = other.val.off; break;
+        case JTAC_OPR_CONST: new (&this->val.konst) jtac_const (other.val.konst); break;
+        case JTAC_OPR_VAR: new (&this->val.var) jtac_var (other.val.var); break;
+        case JTAC_OPR_LABEL: new (&this->val.lbl) jtac_label (other.val.lbl); break;
+        case JTAC_OPR_OFFSET: new (&this->val.off) jtac_offset (other.val.off); break;
+        case JTAC_OPR_NAME: new (&this->val.name) jtac_name (other.val.name); break;
       }
 
     return *this;
@@ -161,10 +168,11 @@ namespace jtac {
     this->type = other.type;
     switch (this->type)
       {
-      case JTAC_OPR_CONST: this->val.konst = std::move (other.val.konst); break;
-      case JTAC_OPR_VAR: this->val.var = std::move (other.val.var); break;
-      case JTAC_OPR_LABEL: this->val.lbl = std::move (other.val.lbl); break;
-      case JTAC_OPR_OFFSET: this->val.off = std::move (other.val.off); break;
+      case JTAC_OPR_CONST: new (&this->val.konst) jtac_const (std::move (other.val.konst)); break;
+      case JTAC_OPR_VAR: new (&this->val.var) jtac_var (std::move (other.val.var)); break;
+      case JTAC_OPR_LABEL: new (&this->val.lbl) jtac_label (std::move (other.val.lbl)); break;
+      case JTAC_OPR_OFFSET: new (&this->val.off) jtac_offset (std::move (other.val.off)); break;
+      case JTAC_OPR_NAME: new (&this->val.name) jtac_name (std::move (other.val.name)); break;
       }
 
     return *this;
@@ -176,24 +184,45 @@ namespace jtac {
     this->type = opr.get_type ();
     switch (opr.get_type ())
       {
-        case JTAC_OPR_CONST:
-          this->val.konst = static_cast<const jtac_const&> (opr);
+      case JTAC_OPR_CONST:
+        new (&this->val.konst) jtac_const (static_cast<const jtac_const&> (opr));
         break;
 
-        case JTAC_OPR_VAR:
-          this->val.var = static_cast<const jtac_var&> (opr);
+      case JTAC_OPR_VAR:
+        new (&this->val.var) jtac_var (static_cast<const jtac_var&> (opr));
         break;
 
-        case JTAC_OPR_LABEL:
-          this->val.lbl = static_cast<const jtac_label&> (opr);
+      case JTAC_OPR_LABEL:
+        new (&this->val.lbl) jtac_label (static_cast<const jtac_label&> (opr));
         break;
 
-        case JTAC_OPR_OFFSET:
-          this->val.off = static_cast<const jtac_offset&> (opr);
+      case JTAC_OPR_OFFSET:
+        new (&this->val.off) jtac_offset (static_cast<const jtac_offset&> (opr));
+        break;
+
+      case JTAC_OPR_NAME:
+        new (&this->val.name) jtac_name (static_cast<const jtac_name&> (opr));
         break;
       }
 
     return *this;
+  }
+
+
+
+  jtac_operand&
+  tagged_operand_to_operand (jtac_tagged_operand& opr)
+  {
+    switch (opr.type)
+      {
+      case JTAC_OPR_VAR: return opr.val.var;
+      case JTAC_OPR_CONST: return opr.val.konst;
+      case JTAC_OPR_LABEL: return opr.val.lbl;
+      case JTAC_OPR_OFFSET: return opr.val.off;
+      case JTAC_OPR_NAME: return opr.val.name;
+      }
+
+    throw std::runtime_error ("tagged_operand_to_operand: unhandled operand type");
   }
 
 

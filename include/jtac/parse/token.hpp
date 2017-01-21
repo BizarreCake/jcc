@@ -47,17 +47,18 @@ namespace jtac {
     JTAC_TOK_DIV,    // /
     JTAC_TOK_MOD,    // %
 
-    JTAC_TOK_PROC,   // proc
-    JTAC_TOK_CMP,    // cmp
-    JTAC_TOK_JMP,    // jmp
-    JTAC_TOK_JE,     // je
-    JTAC_TOK_JNE,    // jne
-    JTAC_TOK_JL,     // jl
-    JTAC_TOK_JLE,    // jle
-    JTAC_TOK_JG,     // jg
-    JTAC_TOK_JGE,    // jge
-    JTAC_TOK_CALL,   // call
-    JTAC_TOK_RET,    // ret
+    JTAC_TOK_PROC,    // proc
+    JTAC_TOK_ENDPROC, // endproc
+    JTAC_TOK_CMP,     // cmp
+    JTAC_TOK_JMP,     // jmp
+    JTAC_TOK_JE,      // je
+    JTAC_TOK_JNE,     // jne
+    JTAC_TOK_JL,      // jl
+    JTAC_TOK_JLE,     // jle
+    JTAC_TOK_JG,      // jg
+    JTAC_TOK_JGE,     // jge
+    JTAC_TOK_CALL,    // call
+    JTAC_TOK_RET,     // ret
   };
 
   struct token_pos { int ln, col; };

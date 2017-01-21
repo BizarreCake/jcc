@@ -28,5 +28,67 @@ namespace jtac {
   }
 
 
+
+  //! \brief Inserts a variable name mapping.
+  void
+  procedure::map_var_name (const std::string& name, jtac_var_id id)
+  {
+    this->var_name_map[name] = id;
+  }
+
+  //! \brief Returns the variable ID associated with the specified name.
+  jtac_var_id
+  procedure::get_var_name_id (const std::string& name) const
+  {
+    auto itr = this->var_name_map.find (name);
+    if (itr == this->var_name_map.end ())
+      throw std::runtime_error ("procedure::get_var_name_id: could not find variable name");
+    return itr->second;
+  }
+
+  //! \brief Checks whether the specified variable name is mapped to a variable ID.
+  bool
+  procedure::has_var_name (const std::string& name) const
+  {
+    return this->var_name_map.find (name) != this->var_name_map.end ();
+  }
+
+
+
+//------------------------------------------------------------------------------
+
+  //! \brief Inserts a new procedure and returns a reference to it.
+  procedure&
+  program::emplace_procedure (const std::string& name)
+  {
+    this->procs.emplace_back (name);
+    return this->procs.back ();
+  }
+
+
+
+  //! \brief Inserts a name mapping.
+  void
+  program::map_name (const std::string& name, jtac_name_id id)
+  {
+    this->name_map[name] = id;
+  }
+
+  //! \brief Returns the name ID associated with the specified name.
+  jtac_name_id
+  program::get_name_id (const std::string& name) const
+  {
+    auto itr = this->name_map.find (name);
+    if (itr == this->name_map.end ())
+      throw std::runtime_error ("procedure::get_name_id: could not find name");
+    return itr->second;
+  }
+
+  //! \brief Checks whether the specified name is mapped to a name ID.
+  bool
+  program::has_name (const std::string& name) const
+  {
+    return this->name_map.find (name) != this->name_map.end ();
+  }
 }
 }

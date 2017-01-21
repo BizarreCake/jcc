@@ -80,28 +80,29 @@ namespace jtac {
           return ss.str ();
         }
 
-      case JTAC_TOK_LPAREN: return "(";
-      case JTAC_TOK_RPAREN: return ")";
-      case JTAC_TOK_COL:    return ":";
-      case JTAC_TOK_COMMA:  return ",";
-      case JTAC_TOK_ASSIGN: return "=";
-      case JTAC_TOK_ADD:    return "+";
-      case JTAC_TOK_SUB:    return "-";
-      case JTAC_TOK_MUL:    return "*";
-      case JTAC_TOK_DIV:    return "/";
-      case JTAC_TOK_MOD:    return "%";
+      case JTAC_TOK_LPAREN:  return "(";
+      case JTAC_TOK_RPAREN:  return ")";
+      case JTAC_TOK_COL:     return ":";
+      case JTAC_TOK_COMMA:   return ",";
+      case JTAC_TOK_ASSIGN:  return "=";
+      case JTAC_TOK_ADD:     return "+";
+      case JTAC_TOK_SUB:     return "-";
+      case JTAC_TOK_MUL:     return "*";
+      case JTAC_TOK_DIV:     return "/";
+      case JTAC_TOK_MOD:     return "%";
 
-      case JTAC_TOK_PROC:   return "proc";
-      case JTAC_TOK_CMP:    return "cmp";
-      case JTAC_TOK_JMP:    return "jmp";
-      case JTAC_TOK_JE:     return "je";
-      case JTAC_TOK_JNE:    return "jne";
-      case JTAC_TOK_JL:     return "jl";
-      case JTAC_TOK_JLE:    return "jle";
-      case JTAC_TOK_JG:     return "jg";
-      case JTAC_TOK_JGE:    return "jge";
-      case JTAC_TOK_CALL:   return "call";
-      case JTAC_TOK_RET:    return "ret";
+      case JTAC_TOK_PROC:    return "proc";
+      case JTAC_TOK_ENDPROC: return "endproc";
+      case JTAC_TOK_CMP:     return "cmp";
+      case JTAC_TOK_JMP:     return "jmp";
+      case JTAC_TOK_JE:      return "je";
+      case JTAC_TOK_JNE:     return "jne";
+      case JTAC_TOK_JL:      return "jl";
+      case JTAC_TOK_JLE:     return "jle";
+      case JTAC_TOK_JG:      return "jg";
+      case JTAC_TOK_JGE:     return "jge";
+      case JTAC_TOK_CALL:    return "call";
+      case JTAC_TOK_RET:     return "ret";
       }
 
     return "";

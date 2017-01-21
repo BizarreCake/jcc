@@ -40,7 +40,8 @@ TEST_CASE( "Tokenizing various inputs using the JTAC lexer",
         "        a = x ; another comment\n"
         "        b = a - y\n"
         "        c = a * b + z\n"
-        "        ret a");
+        "        ret a\n"
+        "endproc");
     lexer lx (ss);
 
     auto toks = lx.tokenize ();
@@ -86,6 +87,7 @@ TEST_CASE( "Tokenizing various inputs using the JTAC lexer",
     REQUIRE( toks.next ().type == JTAC_TOK_RET );
     REQUIRE( toks.peek_next ().type == JTAC_TOK_NAME );
     REQUIRE( std::string (toks.next ().val.str) == "a" );
+    REQUIRE( toks.next ().type == JTAC_TOK_ENDPROC );
 
     REQUIRE( !toks.has_next () );
   }
