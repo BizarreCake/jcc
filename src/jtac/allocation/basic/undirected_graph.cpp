@@ -62,8 +62,29 @@ namespace jtac {
 
     auto first = itr_first->second;
     auto second = itr_second->second;
-    first->nodes.insert (second);
-    second->nodes.insert (first);
+    first->nodes.insert (second->value);
+    second->nodes.insert (first->value);
+  }
+
+  //! \brief Removes a specified node along with its edges.
+  void
+  undirected_graph::remove_node (node_id id)
+  {
+    this->node_map.erase (id);
+    for (auto itr = this->nodes.begin (); itr != this->nodes.end (); ++itr)
+      {
+        auto n = *itr;
+        if (n->value == id)
+          {
+            for (auto other : this->nodes)
+              if (other->value != id)
+                other->nodes.erase (id);
+
+            delete n;
+            itr = this->nodes.erase (itr);
+            break;
+          }
+      }
   }
 
   //! \brief Removes all edges and nodes.
@@ -75,6 +96,41 @@ namespace jtac {
 
     this->nodes.clear ();
     this->node_map.clear ();
+  }
+
+
+  //! \brief Checks whether the graph contains a node of degree less than K.
+  bool
+  undirected_graph::has_less_k (int k) const
+  {
+    for (auto n : this->nodes)
+      if ((int)n->nodes.size () < k)
+        return true;
+
+    return false;
+  }
+
+  //! \brief Returns a node of degree less than K.
+  undirected_graph::node_id
+  undirected_graph::find_less_k (int k) const
+  {
+    for (auto n : this->nodes)
+      if ((int)n->nodes.size () < k)
+        return n->value;
+
+    throw std::runtime_error ("undirected_graph::find_less_k: node not found");
+  }
+
+
+  //! \brief Returns the node associated with the specified ID.
+  undirected_graph::node&
+  undirected_graph::get_node (node_id id)
+  {
+    auto itr = this->node_map.find (id);
+    if (itr == this->node_map.end ())
+      throw std::runtime_error ("undirected_graph::get_node: node not found");
+
+    return *itr->second;
   }
 }
 }

@@ -26,6 +26,29 @@
 namespace jcc {
 namespace jtac {
 
+  printer::printer ()
+  {
+    this->var_names = nullptr;
+  }
+
+
+
+  //! \brief Sets the name table used when printing variables.
+  void
+  printer::set_var_names (const name_map<jtac_var_id>& var_names)
+  {
+    this->var_names = &var_names;
+  }
+
+  //! \brief Drops the currently set variable name table.
+  void
+  printer::reset_var_names ()
+  {
+    this->var_names = nullptr;
+  }
+
+
+
   static const char*
   _get_opcode_mnemonic (jtac_opcode op)
   {
@@ -48,7 +71,11 @@ namespace jtac {
       case JTAC_OP_JG:          return "jg";
       case JTAC_OP_JGE:         return "jge";
       case JTAC_OP_RET:         return "ret";
-      case JTAC_OP_CALL:      return "call";
+      case JTAC_OP_RETN:        return "retn";
+      case JTAC_OP_CALL:        return "call";
+      case JTAC_SOP_LOAD:       return "load";
+      case JTAC_SOP_STORE:      return "store";
+      case JTAC_SOP_UNLOAD:     return "unload";
 
       case JTAC_SOP_ASSIGN_PHI: return "phi";
       }
@@ -79,6 +106,10 @@ namespace jtac {
       {
       case JTAC_OP_UNDEF:
         strm << "<undef>";
+        break;
+
+      case JTAC_OP_RETN:
+        strm << _get_opcode_mnemonic (ins.op);
         break;
 
       case JTAC_OP_ASSIGN_ADD:
@@ -115,6 +146,8 @@ namespace jtac {
       case JTAC_OP_JG:
       case JTAC_OP_JGE:
       case JTAC_OP_RET:
+      case JTAC_SOP_UNLOAD:
+      case JTAC_SOP_STORE:
         strm << _get_opcode_mnemonic (ins.op);
         strm << ' ';
         this->print_operand (ins.oprs[0], strm);
@@ -157,6 +190,20 @@ namespace jtac {
               strm << ", ";
           }
         strm << ')';
+        break;
+
+      case JTAC_SOP_LOAD:
+        this->print_operand (ins.oprs[0], strm);
+        strm << " = ";
+        strm << _get_opcode_mnemonic (ins.op);
+        strm << " LR<";
+        for (int i = 0; i < ins.extra.count; ++i)
+          {
+            this->print_operand (ins.extra.oprs[i], strm);
+            if (i != ins.extra.count - 1)
+              strm << ", ";
+          }
+        strm << '>';
         break;
       }
   }
@@ -238,7 +285,12 @@ namespace jtac {
       case jtac_operand_type::JTAC_OPR_VAR:
         {
           auto var = opr.val.var.get_id ();
-          strm << 't' << var_base (var);
+          if (this->var_names && this->var_names->has_value (var_base (var)))
+            strm << this->var_names->get_name (var_base (var));
+          else
+            strm << 't' << var_base (var);
+          if (var_special (var) != 0)
+            strm << '<' << var_special (var) << '>';
           if (var_subscript (var) != 0)
             strm << '_' << var_subscript (var);
         }
@@ -256,7 +308,20 @@ namespace jtac {
         // TODO: use name mapping
         strm << "<name #" << opr.val.name.get_id () << '>';
         break;
+
+      case jtac_operand_type::JTAC_OPR_BLOCK_REF:
+        strm << "<block #" << opr.val.blk.get_id () << '>';
+        break;
       }
+  }
+
+  //! \brief Prints the specified operand into a string.
+  std::string
+  printer::print_operand (const jtac_tagged_operand& opr)
+  {
+    std::ostringstream ss;
+    this->print_operand (opr, ss);
+    return ss.str ();
   }
 }
 }

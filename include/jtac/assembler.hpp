@@ -117,8 +117,19 @@ namespace jtac {
     DEF_BASIC1(jg, JTAC_OP_JG)
     DEF_BASIC1(jge, JTAC_OP_JGE)
     DEF_BASIC1(ret, JTAC_OP_RET)
+    DEF_BASIC1(unload, JTAC_SOP_UNLOAD)
+    DEF_BASIC1(store, JTAC_SOP_STORE)
 
 #undef DEF_BASIC1
+
+#define DEF_BASIC0(NAME, OPC)                                         \
+    inline void                                                       \
+    emit_##NAME ()                                                    \
+    { this->emit_basic0 ((OPC)); }
+
+    DEF_BASIC0(retn, JTAC_OP_RETN)
+
+#undef DEF_BASIC0
 
     jtac_instruction& emit_call (const jtac_operand& target);
 
@@ -127,9 +138,11 @@ namespace jtac {
 
     jtac_instruction& emit_assign_phi (const jtac_operand& dest);
 
+    jtac_instruction& emit_load (const jtac_operand& dest);
+
    private:
     //! \brief Overwrites or inserts a new instruction and returns it.
-    jtac_instruction &put_instruction ();
+    jtac_instruction& put_instruction ();
 
     //! \brief Emits a standard instruction in the form of: r = a <op> b
     void emit_basic3 (jtac_opcode op, const jtac_operand &r,
@@ -141,6 +154,9 @@ namespace jtac {
 
     //! \brief Emits an instruction that takes a single operand.
     void emit_basic1 (jtac_opcode op, const jtac_operand &opr);
+
+    //\! brief Emits an instruction that takes no operands.
+    void emit_basic0 (jtac_opcode op);
   };
 
 }

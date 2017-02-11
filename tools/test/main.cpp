@@ -22,6 +22,8 @@
 #include <jtac/parse/parser.hpp>
 #include <jtac/control_flow.hpp>
 #include <jtac/printer.hpp>
+#include <jtac/ssa.hpp>
+#include <jtac/allocation/basic/basic.hpp>
 
 
 int
@@ -58,11 +60,70 @@ main (int argc, char *argv[])
       std::cout << std::string (10 + proc.get_name ().length (), '=') << std::endl;
 
       auto cfg = jcc::jtac::control_flow_analyzer::make_cfg (proc.get_body ());
-      for (auto& blk : cfg.get_blocks ())
+
+      /*
+      std::cout << "Normal form:" << std::endl;
+      std::cout << "============\n" << std::endl;
+
+      jcc::jtac::dom_analyzer da;
+      auto dr = da.analyze (cfg);
+
+      for (size_t i = 1; i <= cfg.get_size (); ++i)
         {
+          auto blk = cfg.find_block (i);
           jcc::jtac::printer printer;
+          printer.set_var_names (proc.get_var_names ());
+          std::cout << printer.print_basic_block (*blk) << std::endl;
+          std::cout << "##" << std::endl;
+
+          if (i != 1)
+            {
+              std::cout << "IDom: #" << dr.get_idom (i) << std::endl;
+
+              std::cout << "Doms: ";
+              for (auto id : dr.get_block (i))
+                std::cout << "#" << id << " ";
+              std::cout << std::endl;
+            }
+
+          std::cout << "DF: ";
+          for (auto id : dr.get_dfs (i))
+            std::cout << "#" << id << " ";
+          std::cout << std::endl;
+
+          std::cout << std::endl;
+        }
+      */
+
+      std::cout << "SSA form:" << std::endl;
+      std::cout << "=========\n" << std::endl;
+
+      jcc::jtac::ssa_builder ssab;
+      ssab.transform (cfg);
+
+      for (size_t i = 1; i <= cfg.get_size (); ++i)
+        {
+          auto blk = cfg.find_block (i);
+          jcc::jtac::printer printer;
+          printer.set_var_names (proc.get_var_names ());
           std::cout << printer.print_basic_block (*blk) << std::endl << std::endl;
         }
+
+      std::cout << std::endl;
+
+      jcc::jtac::basic_register_allocator ra;
+      ra.set_var_names (proc.get_var_names ());
+      ra.allocate (cfg, 12);
+
+      for (size_t i = 1; i <= cfg.get_size (); ++i)
+        {
+          auto blk = cfg.find_block (i);
+          jcc::jtac::printer printer;
+          printer.set_var_names (proc.get_var_names ());
+          std::cout << printer.print_basic_block (*blk) << std::endl << std::endl;
+        }
+
+      std::cout << std::endl;
     }
 
   return 0;

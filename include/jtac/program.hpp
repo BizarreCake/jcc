@@ -20,6 +20,7 @@
 #define _JCC__JTAC__PROGRAM__H_
 
 #include "jtac/jtac.hpp"
+#include "jtac/name_map.hpp"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -37,9 +38,12 @@ namespace jtac {
     std::string name;
     std::vector<jtac_var_id> params;
     std::vector<jtac_instruction> body;
-    std::unordered_map<std::string, jtac_var_id> var_name_map;
+    name_map<jtac_var_id> var_names;
 
    public:
+    inline auto& get_var_names () { return this->var_names; }
+    inline const auto& get_var_names () const { return this->var_names; }
+
     inline const std::string& get_name () const { return this->name; }
 
     inline const auto& get_params () const { return this->params; }
@@ -55,16 +59,6 @@ namespace jtac {
     template<typename Iterator>
     void insert_instructions (Iterator start, Iterator end)
     { this->body.insert (this->body.end (), start, end ); }
-
-
-    //! \brief Inserts a variable name mapping.
-    void map_var_name (const std::string& name, jtac_var_id id);
-
-    //! \brief Returns the variable ID associated with the specified name.
-    jtac_var_id get_var_name_id (const std::string& name) const;
-
-    //! \brief Checks whether the specified variable name is mapped to a variable ID.
-    bool has_var_name (const std::string& name) const;
   };
 
 
@@ -79,25 +73,18 @@ namespace jtac {
   class program
   {
     std::vector<procedure> procs;
-    std::unordered_map<std::string, jtac_name_id> name_map;
+    name_map<jtac_name_id> names;
 
    public:
+    inline auto& get_names () { return this->names; }
+    inline const auto& get_names () const { return this->names; }
+
     inline auto& get_procedures () { return this->procs; }
     inline const auto& get_procedures () const { return this->procs; }
 
    public:
     //! \brief Inserts a new procedure and returns a reference to it.
     procedure& emplace_procedure (const std::string& name);
-
-
-    //! \brief Inserts a name mapping.
-    void map_name (const std::string& name, jtac_name_id id);
-
-    //! \brief Returns the name ID associated with the specified name.
-    jtac_name_id get_name_id (const std::string& name) const;
-
-    //! \brief Checks whether the specified name is mapped to a name ID.
-    bool has_name (const std::string& name) const;
   };
 }
 }

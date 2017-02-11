@@ -16,27 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "jtac/program.hpp"
+#include "jtac/allocation/allocator.hpp"
+#include <stdexcept>
 
 
 namespace jcc {
 namespace jtac {
 
-  procedure::procedure (const std::string& name)
-      : name (name)
+  //! \brief Sets the color of the specified variable.
+  void
+  register_allocation::set_color (jtac_var_id var, register_color col)
   {
+    this->color_map[var] = col;
   }
 
-
-
-//------------------------------------------------------------------------------
-
-  //! \brief Inserts a new procedure and returns a reference to it.
-  procedure&
-  program::emplace_procedure (const std::string& name)
+  //! \brief Returns the color of the specified variable.
+  register_color
+  register_allocation::get_color (jtac_var_id var) const
   {
-    this->procs.emplace_back (name);
-    return this->procs.back ();
+    auto itr = this->color_map.find (var);
+    if (itr == this->color_map.end ())
+      throw std::runtime_error ("register_allocation::get_color: variable has no color");
+
+    return itr->second;
   }
 }
 }

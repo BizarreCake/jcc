@@ -26,6 +26,10 @@
 namespace jcc {
 namespace jtac {
 
+  //! \brief Used to identify basic blocks.
+  using basic_block_id = int;
+
+
   /*!
      \enum jtac_opcode
      \brief Enumeration of JTAC instruction opcodes.
@@ -50,10 +54,14 @@ namespace jtac {
     JTAC_OP_JG,               // jg lbl
     JTAC_OP_JGE,              // jge lbl
     JTAC_OP_RET,              // ret t1
+    JTAC_OP_RETN,             // retn
     JTAC_OP_CALL,             // call proc (params...)
 
     // special instructions:
     JTAC_SOP_ASSIGN_PHI,      // t1 = phi(t2, t3, ...)
+    JTAC_SOP_LOAD,            // t1 = load(t2, t3, ...)
+    JTAC_SOP_STORE,           // store t1, t2
+    JTAC_SOP_UNLOAD,          // unload t1
   };
 
   //! \brief Returns true if the opcode described an instruction of the form: X = Y.
@@ -89,11 +97,12 @@ namespace jtac {
    */
   enum jtac_operand_type
   {
-    JTAC_OPR_CONST,  // constant
-    JTAC_OPR_VAR,    // variable
+    JTAC_OPR_CONST,     // constant
+    JTAC_OPR_VAR,       // variable
     JTAC_OPR_LABEL,
     JTAC_OPR_OFFSET,
     JTAC_OPR_NAME,
+    JTAC_OPR_BLOCK_REF, // basic block
   };
 
 
@@ -136,14 +145,15 @@ namespace jtac {
 
 
   //! \brief Variable identifier.
-  using jtac_var_id = int;
+  using jtac_var_id = unsigned long long;
 
   inline jtac_var_id
-  make_var_id (int base, int subscript = 0)
-  { return base | (subscript << 16); }
+  make_var_id (int base, int subscript = 0, int special = 0)
+  { return (jtac_var_id)base | ((jtac_var_id)subscript << 16) | ((jtac_var_id)special << 32); }
 
-  inline int var_base (jtac_var_id id) { return id & 0xFFFF; }
-  inline int var_subscript (jtac_var_id id) { return id >> 16; }
+  inline int var_base (jtac_var_id id) { return (int)(id & 0xFFFF); }
+  inline int var_subscript (jtac_var_id id) { return (int)(id >> 16) & 0xFFFF; }
+  inline int var_special (jtac_var_id id) { return (int)(id >> 32); }
 
   /*!
      \class jtac_var
@@ -256,6 +266,37 @@ namespace jtac {
 
 
   /*!
+     \class jtac_block_ref
+     \brief Basic block reference operand.
+
+     Special operand type used by branch instructions inside control flow
+     graphs. Since every branch instruction in a CFG points to the beginning
+     of a basic block, it makes more sense to have those branch instructions
+     encode their destination with a basic block operand.
+   */
+  class jtac_block_ref: public jtac_operand
+  {
+    basic_block_id id;
+
+   public:
+    inline basic_block_id get_id () const { return this->id; }
+    inline void set_id (basic_block_id id) { this->id = id; }
+
+   public:
+    jtac_block_ref ()
+        : id (0)
+    { }
+
+    jtac_block_ref (basic_block_id id)
+        : id (id)
+    { }
+
+   public:
+    virtual jtac_operand_type get_type () const override { return JTAC_OPR_BLOCK_REF; }
+  };
+
+
+  /*!
      \struct jtac_tagged_operand
      \brief Stores a union of all possible operand types along with the type
             of the actual operand.
@@ -270,6 +311,7 @@ namespace jtac {
       jtac_label lbl;
       jtac_offset off;
       jtac_name name;
+      jtac_block_ref blk;
 
       jtac_tagged_operand_value ()
           : konst (0)
@@ -278,7 +320,7 @@ namespace jtac {
 
    public:
     jtac_tagged_operand ()
-    { }
+    { this->type = JTAC_OPR_CONST; }
 
     jtac_tagged_operand (const jtac_tagged_operand& other)
     { *this = other; }

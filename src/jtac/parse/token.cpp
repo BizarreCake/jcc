@@ -103,6 +103,7 @@ namespace jtac {
       case JTAC_TOK_JGE:     return "jge";
       case JTAC_TOK_CALL:    return "call";
       case JTAC_TOK_RET:     return "ret";
+      case JTAC_TOK_RETN:    return "retn";
       }
 
     return "";

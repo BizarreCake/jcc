@@ -20,6 +20,7 @@
 #include "jtac/assembler.hpp"
 #include "jtac/data_flow.hpp"
 #include <algorithm>
+#include <iostream>
 
 
 namespace jcc {
@@ -38,8 +39,11 @@ namespace jtac {
     this->dom_results = da.analyze (*this->cfg);
 
     this->find_globals (this->globals, this->def_blocks);
+    this->define_initial_names ();
     this->insert_phi_functions ();
     this->rename ();
+
+    this->cfg->set_type (control_flow_graph_type::ssa);
   }
 
 
@@ -110,6 +114,22 @@ namespace jtac {
       }
   }
 
+  //! \brief Initializes the stack/counter for the first block.
+  void
+  ssa_builder::define_initial_names ()
+  {
+    auto root = this->cfg->get_root ();
+    auto undef_globals = this->globals;
+    for (auto& inst : root->get_instructions ())
+      {
+        if (is_opcode_assign (inst.op) && inst.oprs[0].type == JTAC_OPR_VAR)
+          undef_globals.erase (inst.oprs[0].val.var.get_id ());
+      }
+
+    for (auto var : undef_globals)
+      this->new_name (var);
+  }
+
   //! \brief Finds all variables that are live across multiple blocks.
   void
   ssa_builder::find_globals (std::set<jtac_var_id>& globals,
@@ -141,6 +161,7 @@ namespace jtac {
           }
       }
   }
+
 
   //! \brief Renames variables so that each definition is unique.
   void
@@ -203,7 +224,13 @@ namespace jtac {
               break;
             auto var = inst.extra.oprs[idx].val.var.get_id ();
             auto& stk = this->stacks[var_base (var)];
-            inst.extra.oprs[idx].val.var.set_id (make_var_id (var_base (var), stk.top()));
+            //std::cout << "blk: " << blk.get_id () << ", next: " << next->get_id () << ", var: " << var << ", arg count: " << (int)inst.extra.count << ", idx: " << idx << ", stack: " << stk.size () << std::endl;
+            if (stk.empty ())
+              throw std::runtime_error ("ssa_builder::rename_block: bad");
+              //// DEBUG
+              //inst.extra.oprs[idx].val.var.set_id (this->new_name (inst.extra.oprs[idx].val.var.get_id ()));
+            else
+              inst.extra.oprs[idx].val.var.set_id (make_var_id (var_base (var), stk.top()));
           }
       }
 
@@ -251,7 +278,12 @@ namespace jtac {
           {
             switch (inst.op)
               {
-              case JTAC_OP_UNDEF: break;
+              case JTAC_OP_UNDEF:
+              case JTAC_OP_RETN:
+              case JTAC_SOP_LOAD:
+              case JTAC_SOP_STORE:
+              case JTAC_SOP_UNLOAD:
+                break;
 
               case JTAC_OP_JMP:
               case JTAC_OP_JE:

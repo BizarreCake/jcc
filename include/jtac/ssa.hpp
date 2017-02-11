@@ -61,6 +61,9 @@ namespace jtac {
      */
     void insert_phi_functions ();
 
+    //! \brief Initializes the stack/counter for the first block.
+    void define_initial_names ();
+
     //! \brief Finds all variables that are live across multiple blocks.
     void find_globals (std::set<jtac_var_id>& globals,
                        std::map<jtac_var_id, std::set<basic_block_id>>& blocks);

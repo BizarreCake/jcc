@@ -59,6 +59,7 @@ namespace jtac {
     JTAC_TOK_JGE,     // jge
     JTAC_TOK_CALL,    // call
     JTAC_TOK_RET,     // ret
+    JTAC_TOK_RETN,    // retn
   };
 
   struct token_pos { int ln, col; };

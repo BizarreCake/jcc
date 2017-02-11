@@ -36,6 +36,13 @@ namespace jtac {
   class register_allocation
   {
     std::unordered_map<jtac_var_id, register_color> color_map;
+
+   public:
+    //! \brief Sets the color of the specified variable.
+    void set_color (jtac_var_id var, register_color col);
+
+    //! \brief Returns the color of the specified variable.
+    register_color get_color (jtac_var_id var) const;
   };
 
 
@@ -51,12 +58,20 @@ namespace jtac {
 
    public:
     /*!
-       \brief Allocates registers.
+       \brief Performs register allocation.
 
-       Processes the specified control flow graph and allocates registers or
-       decides to spill to memory variables in the CFG.
+       Processes the specified control flow graph and determines which
+       variables get mapped to what registers, and which variables get spilled
+       into memory.
+
+       NOTE: The control graph is transformed to contain the necessary spill
+             code.
+
+       \param cfg        The control flow graph to process.
+       \param num_colors Max amount of physical registers available.
      */
-    virtual register_allocation allocate (const control_flow_graph& cfg) = 0;
+    virtual register_allocation allocate (control_flow_graph& cfg,
+                                          int num_colors) = 0;
   };
 }
 }

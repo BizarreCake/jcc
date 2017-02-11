@@ -482,29 +482,51 @@ namespace jtac {
         auto& ue_var = this->ue_vars[blk->get_id ()];
         auto& var_kill = this->var_kills[blk->get_id ()];
 
+        std::set<jtac_var_id> in_mem;
+
         auto& insts = blk->get_instructions ();
         for (auto& inst : insts)
           {
-            int opr_start = is_opcode_assign (inst.op) ? 1 : 0;
-            int opr_end = get_operand_count (inst.op);
-            for (int i = opr_start; i < opr_end; ++i)
-              if (inst.oprs[i].type == JTAC_OPR_VAR)
-                {
-                  auto var = inst.oprs[i].val.var.get_id ();
-                  if (var_kill.find (var) == var_kill.end ())
-                    ue_var.insert (var);
-                }
-            if (has_extra_operands (inst.op))
-              for (int i = 0; i < inst.extra.count; ++i)
-                if (inst.extra.oprs[i].type == JTAC_OPR_VAR)
-                  {
-                    auto var = inst.extra.oprs[i].val.var.get_id ();
-                    if (var_kill.find (var) == var_kill.end ())
-                      ue_var.insert (var);
-                  }
+            if (inst.op == JTAC_SOP_STORE)
+              {
+                var_kill.erase (inst.oprs[1].val.var.get_id ());
+                in_mem.erase (inst.oprs[1].val.var.get_id ());
+              }
+            else if (inst.op == JTAC_SOP_UNLOAD)
+              {
+                in_mem.erase (inst.oprs[0].val.var.get_id ());
+              }
+            else if (inst.op == JTAC_SOP_LOAD)
+              {
+                in_mem.insert (inst.oprs[0].val.var.get_id ());
+              }
+            else
+              {
+                int opr_start = is_opcode_assign (inst.op) ? 1 : 0;
+                int opr_end = get_operand_count (inst.op);
+                for (int i = opr_start; i < opr_end; ++i)
+                  if (inst.oprs[i].type == JTAC_OPR_VAR)
+                    {
+                      auto var = inst.oprs[i].val.var.get_id ();
+                      if (in_mem.find (var) != in_mem.end ())
+                        continue;
+                      if (var_kill.find (var) == var_kill.end ())
+                        ue_var.insert (var);
+                    }
+                if (has_extra_operands (inst.op))
+                  for (int i = 0; i < inst.extra.count; ++i)
+                    if (inst.extra.oprs[i].type == JTAC_OPR_VAR)
+                      {
+                        auto var = inst.extra.oprs[i].val.var.get_id ();
+                        if (in_mem.find (var) != in_mem.end ())
+                          continue;
+                        if (var_kill.find (var) == var_kill.end ())
+                          ue_var.insert (var);
+                      }
 
-            if (is_opcode_assign (inst.op) && inst.oprs[0].type == JTAC_OPR_VAR)
-              var_kill.insert (inst.oprs[0].val.var.get_id ());
+                if (is_opcode_assign (inst.op) && inst.oprs[0].type == JTAC_OPR_VAR)
+                  var_kill.insert (inst.oprs[0].val.var.get_id ());
+              }
           }
       }
   }

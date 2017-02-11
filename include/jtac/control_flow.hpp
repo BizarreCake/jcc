@@ -28,9 +28,6 @@
 namespace jcc {
 namespace jtac {
 
-  //! \brief Used to identify basic blocks.
-  using basic_block_id = int;
-
   /*!
      \class basic_block
      \brief A straight-line piece of code without any jumps.
@@ -49,6 +46,7 @@ namespace jtac {
 
     inline auto& get_instructions () { return this->insts; }
     inline const auto& get_instructions () const { return this->insts; }
+    inline void clear_instructions () { this->insts.clear (); }
 
     inline const auto& get_prev () const { return this->prev; }
     inline const auto& get_next () const { return this->next; }
@@ -105,12 +103,15 @@ namespace jtac {
 
    public:
     inline control_flow_graph_type get_type () const { return this->type; }
+    inline void set_type (control_flow_graph_type type) { this->type = type; }
 
     inline auto& get_root () { return this->root; }
     inline const auto& get_root () const { return this->root; }
 
     inline auto& get_blocks () { return this->blocks; }
     inline const auto& get_blocks () const { return this->blocks; }
+
+    inline size_t get_size () const { return this->blocks.size (); }
 
    public:
     control_flow_graph (control_flow_graph_type type,

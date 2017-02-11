@@ -21,6 +21,7 @@
 
 #include "jtac/jtac.hpp"
 #include "jtac/control_flow.hpp"
+#include "jtac/name_map.hpp"
 #include <iosfwd>
 
 
@@ -35,6 +36,17 @@ namespace jtac {
   {
     size_t base;
     size_t inst_idx;
+    const name_map<jtac_var_id> *var_names;
+
+   public:
+    printer ();
+
+   public:
+    //! \brief Sets the name table used when printing variables.
+    void set_var_names (const name_map<jtac_var_id>& var_names);
+
+    //! \brief Drops the currently set variable name table.
+    void reset_var_names ();
 
    public:
     //! \brief Prints the specified opcode's mnemonic onto the given stream.
@@ -57,9 +69,12 @@ namespace jtac {
     //! \brief Prints the specified basic block into a string.
     std::string print_basic_block (const basic_block& blk);
 
-   private:
+
     //! \brief Prints the specified operand onto the given stream.
     void print_operand (const jtac_tagged_operand& opr, std::ostream& strm);
+
+    //! \brief Prints the specified operand into a string.
+    std::string print_operand (const jtac_tagged_operand& opr);
   };
 }
 }

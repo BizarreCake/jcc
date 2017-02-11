@@ -50,6 +50,10 @@ namespace jtac {
       case JTAC_OP_JG:
       case JTAC_OP_JGE:
       case JTAC_OP_CALL:
+      case JTAC_OP_RETN:
+      case JTAC_SOP_LOAD:
+      case JTAC_SOP_STORE:
+      case JTAC_SOP_UNLOAD:
         return false;
       }
 
@@ -63,6 +67,14 @@ namespace jtac {
     switch (op)
       {
       case JTAC_OP_UNDEF:
+      case JTAC_OP_RETN:
+        return JTAC_OPC_NONE;
+
+      // intentionally done so that these instructions don't get handled the
+      // usual way.
+      case JTAC_SOP_LOAD:
+      case JTAC_SOP_STORE:
+      case JTAC_SOP_UNLOAD:
         return JTAC_OPC_NONE;
 
       case JTAC_OP_ASSIGN:
@@ -157,6 +169,7 @@ namespace jtac {
         case JTAC_OPR_LABEL: new (&this->val.lbl) jtac_label (other.val.lbl); break;
         case JTAC_OPR_OFFSET: new (&this->val.off) jtac_offset (other.val.off); break;
         case JTAC_OPR_NAME: new (&this->val.name) jtac_name (other.val.name); break;
+        case JTAC_OPR_BLOCK_REF: new (&this->val.blk) jtac_block_ref (other.val.blk); break;
       }
 
     return *this;
@@ -173,6 +186,7 @@ namespace jtac {
       case JTAC_OPR_LABEL: new (&this->val.lbl) jtac_label (std::move (other.val.lbl)); break;
       case JTAC_OPR_OFFSET: new (&this->val.off) jtac_offset (std::move (other.val.off)); break;
       case JTAC_OPR_NAME: new (&this->val.name) jtac_name (std::move (other.val.name)); break;
+      case JTAC_OPR_BLOCK_REF: new (&this->val.blk) jtac_block_ref (std::move (other.val.blk)); break;
       }
 
     return *this;
@@ -203,6 +217,10 @@ namespace jtac {
       case JTAC_OPR_NAME:
         new (&this->val.name) jtac_name (static_cast<const jtac_name&> (opr));
         break;
+
+      case JTAC_OPR_BLOCK_REF:
+        new (&this->val.blk) jtac_block_ref (static_cast<const jtac_block_ref&> (opr));
+        break;
       }
 
     return *this;
@@ -220,6 +238,7 @@ namespace jtac {
       case JTAC_OPR_LABEL: return opr.val.lbl;
       case JTAC_OPR_OFFSET: return opr.val.off;
       case JTAC_OPR_NAME: return opr.val.name;
+      case JTAC_OPR_BLOCK_REF: return opr.val.blk;
       }
 
     throw std::runtime_error ("tagged_operand_to_operand: unhandled operand type");
@@ -288,7 +307,7 @@ namespace jtac {
         if (ncap > 255) ncap = 255;
         this->extra.cap = (unsigned char)ncap;
         jtac_tagged_operand *tmp = new jtac_tagged_operand[ncap];
-        for (int i = 0; this->extra.count; ++i)
+        for (int i = 0; i < this->extra.count; ++i)
           tmp[i] = std::move (this->extra.oprs[i]);
         delete[] this->extra.oprs;
         this->extra.oprs = tmp;

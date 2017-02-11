@@ -16,27 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "jtac/program.hpp"
+#ifndef _JCC__JTAC__TRASLATE__X86_64__PROCEDURE__H_
+#define _JCC__JTAC__TRASLATE__X86_64__PROCEDURE__H_
 
 
 namespace jcc {
 namespace jtac {
 
-  procedure::procedure (const std::string& name)
-      : name (name)
+  /*!
+     \class x86_64_procedure
+     \brief x86-64 procedure.
+   */
+  class x86_64_procedure
   {
-  }
 
-
-
-//------------------------------------------------------------------------------
-
-  //! \brief Inserts a new procedure and returns a reference to it.
-  procedure&
-  program::emplace_procedure (const std::string& name)
-  {
-    this->procs.emplace_back (name);
-    return this->procs.back ();
-  }
+  };
 }
 }
+
+#endif //_JCC__JTAC__TRASLATE__X86_64__PROCEDURE__H_

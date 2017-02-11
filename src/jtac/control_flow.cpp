@@ -130,6 +130,20 @@ namespace jtac {
       }
   }
 
+  static bool
+  _is_end_instruction (const jtac_instruction& inst)
+  {
+    switch (inst.op)
+      {
+      case JTAC_OP_RET:
+      case JTAC_OP_RETN:
+        return true;
+
+      default:
+        return false;
+      }
+  }
+
   /*!
      \brief Builds a control flow graph.
    */
@@ -158,6 +172,12 @@ namespace jtac {
             if (inst.oprs[0].type != JTAC_OPR_OFFSET)
               throw std::runtime_error ("control_flow_analyzer::build_graph: branch instruction operand is not an offset");
             leaders[i + 1 + inst.oprs[0].val.off.get_offset ()] = true;
+          }
+        else if (_is_end_instruction (inst))
+          {
+            // mark next instruction as leader
+            if (i != insts.size () - 1)
+              leaders[i + 1] = true;
           }
       }
 
@@ -190,9 +210,11 @@ namespace jtac {
                 auto& target = blocks[target_idx];
                 target->add_prev (blk);
                 blk->add_next (target);
+
+                last.oprs[0] = jtac_block_ref (target->get_id ());
               }
           }
-        if (last.op != JTAC_OP_JMP)
+        if (last.op != JTAC_OP_JMP && !_is_end_instruction (last))
           {
             auto next_idx = p.first + blk->get_instructions ().size ();
             auto itr = blocks.find (next_idx);

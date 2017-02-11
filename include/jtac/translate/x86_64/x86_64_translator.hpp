@@ -16,27 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _JCC__JTAC__TRASLATE__X86_64__X86_64_TRANSLATOR__H_
+#define _JCC__JTAC__TRASLATE__X86_64__X86_64_TRANSLATOR__H_
+
 #include "jtac/program.hpp"
+#include "jtac/translate/x86_64/procedure.hpp"
+#include "jtac/control_flow.hpp"
+#include "jtac/allocation/allocator.hpp"
+#include <memory>
 
 
 namespace jcc {
 namespace jtac {
 
-  procedure::procedure (const std::string& name)
-      : name (name)
+  /*!
+     \class x86_64_translator
+     \brief JTAC to x86-64 code translator.
+   */
+  class x86_64_translator
   {
-  }
+    std::unique_ptr<control_flow_graph> cfg;
+    std::unique_ptr<register_allocation> reg_res;
 
+   public:
+    x86_64_translator ();
 
-
-//------------------------------------------------------------------------------
-
-  //! \brief Inserts a new procedure and returns a reference to it.
-  procedure&
-  program::emplace_procedure (const std::string& name)
-  {
-    this->procs.emplace_back (name);
-    return this->procs.back ();
-  }
+   public:
+    /*!
+       \brief Translates the specified procedure into x86-64.
+     */
+    x86_64_procedure translate_procedure (const procedure& proc);
+  };
 }
 }
+
+#endif //_JCC__JTAC__TRASLATE__X86_64__X86_64_TRANSLATOR__H_

@@ -145,6 +145,14 @@ namespace jtac {
     inst.oprs[0] = opr;
   }
 
+  //\! brief Emits an instruction that takes no operands.
+  void
+  assembler::emit_basic0 (jtac_opcode op)
+  {
+    auto& inst = this->put_instruction ();
+    inst.op = op;
+  }
+
 
 
   jtac_instruction&
@@ -177,6 +185,18 @@ namespace jtac {
   {
     auto& inst = this->put_instruction ();
     inst.op = JTAC_SOP_ASSIGN_PHI;
+    inst.oprs[0] = dest;
+    inst.extra.count = 0;
+    inst.extra.cap = 4;
+    inst.extra.oprs = new jtac_tagged_operand[inst.extra.cap];
+    return inst;
+  }
+
+  jtac_instruction&
+  assembler::emit_load (const jtac_operand& dest)
+  {
+    auto& inst = this->put_instruction ();
+    inst.op = JTAC_SOP_LOAD;
     inst.oprs[0] = dest;
     inst.extra.count = 0;
     inst.extra.cap = 4;

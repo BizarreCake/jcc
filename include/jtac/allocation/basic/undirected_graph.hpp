@@ -39,12 +39,18 @@ namespace jtac {
     struct node
     {
       node_id value;
-      std::set<node *> nodes; // attached nodes
+      std::set<node_id> nodes; // attached nodes
     };
 
    public:
     std::vector<node *> nodes;
     std::unordered_map<node_id, node *> node_map;
+
+   public:
+    inline const auto& get_nodes () const { return this->nodes; }
+
+    inline size_t size () const { return this->nodes.size (); }
+    inline bool empty () const { return this->size () == 0; }
 
    public:
     undirected_graph ();
@@ -57,8 +63,21 @@ namespace jtac {
     //! \brief Links between two nodes.
     void add_edge (node_id a, node_id b);
 
+    //! \brief Removes a specified node along with its edges.
+    void remove_node (node_id id);
+
     //! \brief Removes all edges and nodes.
     void clear ();
+
+
+    //! \brief Checks whether the graph contains a node of degree less than K.
+    bool has_less_k (int k) const;
+
+    //! \brief Returns a node of degree less than K.
+    node_id find_less_k (int k) const;
+
+    //! \brief Returns the node associated with the specified ID.
+    node& get_node (node_id id);
   };
 }
 }

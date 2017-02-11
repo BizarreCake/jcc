@@ -214,7 +214,8 @@ namespace jtac {
         { "jg", JTAC_TOK_JG },
         { "jge", JTAC_TOK_JGE },
         { "call", JTAC_TOK_CALL },
-        { "ret", JTAC_TOK_RET }
+        { "ret", JTAC_TOK_RET },
+        { "retn", JTAC_TOK_RETN },
     };
 
     auto itr = _keywords.find (name);

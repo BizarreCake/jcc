@@ -84,11 +84,12 @@ namespace jtac {
           else
             {
               // variable
-              if (this->curr_proc->has_var_name (name))
-                opr = jtac_var (this->curr_proc->get_var_name_id (name));
+              auto& names = this->curr_proc->get_var_names ();
+              if (names.has_name (name))
+                opr = jtac_var (names.get (name));
               else
                 {
-                  this->curr_proc->map_var_name (name, this->next_var_id);
+                  names.insert (name, this->next_var_id);
                   opr = jtac_var (this->next_var_id++);
                 }
 
@@ -116,11 +117,12 @@ namespace jtac {
     jtac_tagged_operand opr;
 
     auto name = tok.val.str;
-    if (this->prog.has_name (name))
-      opr = jtac_name (this->prog.get_name_id (name));
+    auto& names = this->prog.get_names ();
+    if (names.has_name (name))
+      opr = jtac_name (names.get (name));
     else
       {
-        this->prog.map_name (name, this->next_name_id);
+        names.insert (name, this->next_name_id);
         opr = jtac_name (this->next_name_id ++);
       }
 
@@ -226,6 +228,14 @@ namespace jtac {
         return;
       }
 
+#define INST_0OPR(NAME, TOK)                                  \
+  case TOK:                                                   \
+  {                                                           \
+    this->toks.next ();                                       \
+    this->asem.emit_##NAME ();                                \
+  }                                                           \
+  break;
+
 #define INST_1OPR(NAME, TOK)                                  \
   case TOK:                                                   \
   {                                                           \
@@ -273,6 +283,7 @@ namespace jtac {
       INST_1LBL(jge, JTAC_TOK_JGE)
       INST_1OPR(ret, JTAC_TOK_RET)
       INST_2OPR(cmp, JTAC_TOK_CMP)
+      INST_0OPR(retn, JTAC_TOK_RETN)
 
       case JTAC_TOK_CALL:
         {
@@ -305,7 +316,9 @@ namespace jtac {
       }
 
 #undef INST_1LBL
+#undef INST_0OPR
 #undef INST_1OPR
+#undef INST_2OPR
   }
 
   void
@@ -351,11 +364,12 @@ namespace jtac {
     this->label_map.clear ();
 
     // map parameters into variables
+    auto& names = proc.get_var_names ();
     for (auto param : params)
       {
-        if (proc.has_var_name (param.val.str))
+        if (names.has_name (param.val.str))
           throw parse_error ("procedure parameter specified twice", tok.pos);
-        proc.map_var_name (param.val.str, this->next_var_id++);
+        names.insert (param.val.str, this->next_var_id++);
       }
 
     // procedure body
