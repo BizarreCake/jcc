@@ -73,7 +73,7 @@ TEST_CASE( "Transforming a CFG into maximal SSA form",
       "1: t2_1 = 7\n"
       "2: t3_1 = t1_1 + t2_1\n"
       "3: cmp t3_1, 8\n"
-      "4: jle 7\n"
+      "4: jle <block #3>\n"
       "--------------\n"
       "Prev: none\n"
       "Next: #3 #2" );
@@ -82,7 +82,7 @@ TEST_CASE( "Transforming a CFG into maximal SSA form",
   REQUIRE( str == "Basic Block #2\n"
       "--------------\n"
       "5: t3_4 = t3_1 + 3\n"
-      "6: jmp 8\n"
+      "6: jmp <block #4>\n"
       "--------------\n"
       "Prev: #1\n"
       "Next: #4" );

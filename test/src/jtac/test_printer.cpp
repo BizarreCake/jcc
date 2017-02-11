@@ -114,7 +114,7 @@ TEST_CASE( "Printing JTAC basic blocks using a printer",
                   "1: t2 = 7\n"
                   "2: t3 = t1 + t2\n"
                   "3: cmp t3, 8\n"
-                  "4: jle 7\n"
+                  "4: jle <block #3>\n"
                   "--------------\n"
                   "Prev: none\n"
                   "Next: #3 #2" );
@@ -123,7 +123,7 @@ TEST_CASE( "Printing JTAC basic blocks using a printer",
   REQUIRE( str == "Basic Block #2\n"
                   "--------------\n"
                   "5: t3 = t3 + 3\n"
-                  "6: jmp 8\n"
+                  "6: jmp <block #4>\n"
                   "--------------\n"
                   "Prev: #1\n"
                   "Next: #4" );
